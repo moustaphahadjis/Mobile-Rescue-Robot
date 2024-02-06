@@ -7,7 +7,7 @@ EXTERNPROTO "../protos/HazardMap.proto"
 EXTERNPROTO "../protos/Victim.proto"
 EXTERNPROTO "../protos/worldTile.proto"
 IMPORTABLE EXTERNPROTO "../protos/custom_robot.proto"
-EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2023a/projects/robots/gctronic/e-puck/protos/E-puck.proto"
+EXTERNPROTO "../protos/E-puck.proto"
 
 WorldInfo {
   basicTimeStep 16
@@ -27,8 +27,8 @@ WorldInfo {
   ]
 }
 DEF Viewpoint Viewpoint {
-  orientation 0.47334348953144956 -0.6837203389373007 -0.555402951956193 3.641048186607093
-  position 0.24000698187790484 0.25549624160126433 0.4511030704468605
+  orientation 0.8259718563897029 -0.19538199087788977 0.5287687302524046 4.6726878690574996
+  position -0.8252799097832865 0.8234581253726446 -0.36505548634991974
 }
 TexturedBackground {
 }
@@ -614,13 +614,35 @@ E-puck {
   hidden position_0_1 1.5357897051165433e-08
   hidden rotation_1 0 1 0 0.5162683866795771
   hidden rotation_2 0 1 0 2.4610372828217297
-  translation -0.22968849212089912 -0.030031980997891512 -0.054630925311921055
-  rotation -0.9623257333912634 -0.19226193948588596 -0.1922616172773245 1.609189243546483
+  translation -0.2296884921209165 -0.03003198099789509 -0.054630925311928445
+  rotation -0.9623257308421104 -0.19226178477417308 -0.1922617847484197 1.6091891793543225
   controller "controller2"
   camera_fieldOfView 0.9
   camera_width 1280
   camera_height 720
   turretSlot [
+    LightSensor {
+      translation 0.03 0.03 0
+      name "left_heat_sensor"
+      lookupTable [
+        37 12 0
+        30 5 0
+        25 2 0
+        21 0 0
+        38 1000 0
+      ]
+    }
+    LightSensor {
+      translation 0.03 -0.03 0
+      name "right_heat_sensor"
+      lookupTable [
+        37 12 0
+        30 5 0
+        25 2 0
+        21 0 0
+        38 1000 0
+      ]
+    }
     Camera {
       name "colour_camera"
       recognitionColors [

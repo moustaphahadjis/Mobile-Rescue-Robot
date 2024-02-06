@@ -45,8 +45,8 @@ victimTimer = 0
 robot = Robot()
 
 # Declare motors/wheels
-wheel_left = robot.getMotor("left wheel motor")
-wheel_right = robot.getMotor("right wheel motor")
+wheel_left = robot.getDevice("left wheel motor")
+wheel_right = robot.getDevice("right wheel motor")
 
 
 camera = robot.getDevice("camera")
@@ -74,8 +74,8 @@ gps = robot.getDevice("gps")
 gps.enable(timeStep)
 
 # Declare heat/temperature sensor
-left_heat_sensor = robot.getLightSensor("left_heat_sensor")
-right_heat_sensor = robot.getLightSensor("right_heat_sensor")
+left_heat_sensor = robot.getDevice("left_heat_sensor")
+right_heat_sensor = robot.getDevice("right_heat_sensor")
 
 left_heat_sensor.enable(timeStep)
 right_heat_sensor.enable(timeStep)
@@ -85,19 +85,19 @@ leftSensors = []
 rightSensors = []
 frontSensors = []
 
-frontSensors.append(robot.getDistanceSensor("ps7"))
+frontSensors.append(robot.getDevice("ps7"))
 frontSensors[0].enable(timeStep)
-frontSensors.append(robot.getDistanceSensor("ps0"))
+frontSensors.append(robot.getDevice("ps0"))
 frontSensors[1].enable(timeStep)
 
-rightSensors.append(robot.getDistanceSensor("ps1"))
+rightSensors.append(robot.getDevice("ps1"))
 rightSensors[0].enable(timeStep)
-rightSensors.append(robot.getDistanceSensor("ps2"))
+rightSensors.append(robot.getDevice("ps2"))
 rightSensors[1].enable(timeStep)
 
-leftSensors.append(robot.getDistanceSensor("ps5"))
+leftSensors.append(robot.getDevice("ps5"))
 leftSensors[0].enable(timeStep)
-leftSensors.append(robot.getDistanceSensor("ps6"))
+leftSensors.append(robot.getDevice("ps6"))
 leftSensors[1].enable(timeStep)
 
 #        [left wheel speed, right wheel speed]
