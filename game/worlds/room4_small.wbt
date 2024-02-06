@@ -7,6 +7,7 @@ EXTERNPROTO "../protos/HazardMap.proto"
 EXTERNPROTO "../protos/Victim.proto"
 EXTERNPROTO "../protos/worldTile.proto"
 IMPORTABLE EXTERNPROTO "../protos/custom_robot.proto"
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2023a/projects/robots/gctronic/e-puck/protos/E-puck.proto"
 
 WorldInfo {
   basicTimeStep 16
@@ -26,8 +27,8 @@ WorldInfo {
   ]
 }
 DEF Viewpoint Viewpoint {
-  orientation -0.683263031880358 0.6832632972222044 0.2574934871694867 2.6375617699903025
-  position -0.08 1.0000000000000002 0.8500000000000001
+  orientation 0.47334348953144956 -0.6837203389373007 -0.555402951956193 3.641048186607093
+  position 0.24000698187790484 0.25549624160126433 0.4511030704468605
 }
 TexturedBackground {
 }
@@ -607,4 +608,55 @@ DEF MAINSUPERVISOR Robot {
   customData "480"
   supervisor TRUE
   window "MainSupervisorWindow"
+}
+E-puck {
+  hidden position_0_0 -1.5357900728929508e-08
+  hidden position_0_1 1.5357897051165433e-08
+  hidden rotation_1 0 1 0 0.5162683866795771
+  hidden rotation_2 0 1 0 2.4610372828217297
+  translation -0.22968849212089912 -0.030031980997891512 -0.054630925311921055
+  rotation -0.9623257333912634 -0.19226193948588596 -0.1922616172773245 1.609189243546483
+  controller "controller2"
+  camera_fieldOfView 0.9
+  camera_width 1280
+  camera_height 720
+  turretSlot [
+    Camera {
+      name "colour_camera"
+      recognitionColors [
+        0.713726 0.580392 0.32549
+        0.505882 0 0.760784
+        1 0 0
+        0 1 0
+      ]
+      recognition Recognition {
+      }
+    }
+    GPS {
+    }
+    Camera {
+      translation 0.0336617 0.0163406 -0.022
+      rotation 0 0 1 0.785405
+      name "camera_left"
+      recognitionColors [
+        1 1 1
+      ]
+      width 1280
+      height 720
+      recognition Recognition {
+      }
+    }
+    Camera {
+      translation 0.0325533 -0.0203553 -0.022
+      rotation 0 0 -1 0.785396
+      name "camera_right"
+      recognitionColors [
+        1 1 1
+      ]
+      width 1280
+      height 720
+      recognition Recognition {
+      }
+    }
+  ]
 }
