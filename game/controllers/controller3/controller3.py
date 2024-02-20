@@ -1,112 +1,103 @@
-# Import all relevant libraries
-from controller import Robot
-import math
-import struct
 import cv2
-import pytesseract
 import numpy as np
+import pytesseract
+import math
+from controller import Robot, DistanceSensor
 
-timeStep=32
-
-
-useCV = False
-try:
-    import cv2
-    import numpy as np
-    useCV = True
-    print("Camera-based visual victim detection is enabled.")
-except:
-    print("[WARNING] Since OpenCV and numpy is not installed, the visual victim detection is turned off. \
-        Run 'pip install opencv-python' to install OpenCV and 'pip install numpy' on your terminal/command line.")
+# Initialize robot and sensors
+robot = Robot()
+camera = robot.getDevice("camera")
+camera.enable(32)  # Enable the camera with a time step of 32 ms
+distance_sensor=robot.getDevice("distance_sensor")
+distance_sensor.enable(32)
 
 # Set the path to the Tesseract executable
 pytesseract.pytesseract.tesseract_cmd = 'C:/Program Files/Tesseract-OCR/tesseract.exe'
 
 # Tesseract configuration options
-myconfig = "--psm 6 --oem 3"
+TESSERACT_CONFIG = "--psm 6 --oem 3"
 
-# ... (rest of your code)
-robot = Robot()
+# Set victim detection parameters
+MIN_CONTOUR_AREA = 1000
 
+# Function to preprocess the image
+def preprocess_image(image_data):
+    img = np.array(np.frombuffer(image_data, np.uint8).reshape((camera.getHeight(), camera.getWidth(), 4)))
+    img[:, :, 2] = np.zeros([img.shape[0], img.shape[1]])  # Convert to grayscale
+    gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+    thresh = cv2.threshold(gray, 140, 255, cv2.THRESH_BINARY)[1]
+    return thresh
 
-camera = robot.getDevice("camera")
-camera.enable(timeStep)
+# Function to detect contours
+def detect_contours(thresh):
+    contours, _ = cv2.findContours(thresh, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+    return contours
 
-camera_left= robot.getDevice("camera_left")
-camera_left.enable(timeStep)
-
-camera_right= robot.getDevice("camera_right")
-camera_right.enable(timeStep)
-
-gps=robot.getDevice('gps')
-gps.enable(timeStep)
-
-
-# Function to detect visual victims
-def detectVisualWithOCR(image_data, camera, useCV=True):
-    coords_list = []
-
-    if useCV:
-        img = np.array(np.frombuffer(image_data, np.uint8).reshape((camera.getHeight(), camera.getWidth(), 4)))
-        img[:, :, 2] = np.zeros([img.shape[0], img.shape[1]])
-
-        # Convert from BGR to HSV color space
-        gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-        # Apply threshold
-        thresh = cv2.threshold(gray, 140, 255, cv2.THRESH_BINARY)[1]
-
-        # Draw all contours in green and accepted ones in red
-        contours, h = cv2.findContours(thresh, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-        print('Contours',len(contours))
-        
-        for c in contours:
-            if cv2.contourArea(c) > 1000:
-                
-
-                coords = list(c[0][0])
-                coords_list.append(coords)
-                print("Victim at x=" + str(coords[0]) + " y=" + str(coords[1]))
-
-                # Extract text using OCR from the region of interest (ROI) around the detected contour
-                x, y, w, h = cv2.boundingRect(c)
-                cv2.rectangle(img, (x, y), (x + w, y + h), (0, 255, 0), 2)
-
-                
-               
-                roi = img[y:y + h, x:x + w]
-                text = pytesseract.image_to_string(cv2.cvtColor(roi, cv2.COLOR_BGR2RGB), config=myconfig)
-                print("OCR Text:", text)
-        
-
-        
-
-        #cv2.imshow('image', img)
-        
-        return coords_list
-
-    else:
-        return 0
-
-#Object Detection    
-       
+# Function to extract text using OCR
+def extract_text(roi):
+    text, _ = pytesseract.image_to_string(cv2.cvtColor(roi, cv2.COLOR_BGR2RGB), config=TESSERACT_CONFIG)
+    return text
 
 
+# Function for visual victim detection
+# Function for visual victim detection
+def detect_visual_with_ocr(image_data, img):
+    victims = []  # Create an empty list
+    # Rest of your code
 
-# Main loop
-while robot.step(timeStep) != -1:
+    thresh = preprocess_image(image_data)
+    contours = detect_contours(thresh)
 
-    if useCV:
-        # Get the image data from the camera
+    detected_victim_types = set()  # Set to keep track of already detected victim types
+
+    for c in contours:
+        if cv2.contourArea(c) > MIN_CONTOUR_AREA:
+            x, y, w, h = cv2.boundingRect(c)
+            cv2.rectangle(img, (x, y), (x + w, y + h), (0, 255, 0), 2)
+
+            roi = img[y:y + h, x:x + w]
+            text = extract_text(roi)
+
+            if text in ['U', 'H', 'S'] and text not in detected_victim_types:
+                print(f'{text.capitalize()} Victim Detected')
+                victims.append((text, x, y))  # Append the victim type and coordinates to the list
+                detected_victim_types.add(text)  # Mark the victim type as detected
+
+    return victims  # Return the list of victims
+
+detected_victims = []
+def run():
+    # Main loop
+      # Initialize an empty list to store the detected victims
+    while robot.step(32) != -1:
         img_data = camera.getImage()
-        # Detect visual victims with OCR
-        coords = detectVisualWithOCR(img_data, camera)
+        img = np.array(np.frombuffer(img_data, np.uint8).reshape((camera.getHeight(), camera.getWidth(), 4)))
 
-        print(gps.getValues())
-        
+        victims = detect_visual_with_ocr(img_data, img)  # Get the list of victims from the function
+
+        if victims:
+            for v in victims:
+                detected_victims.append(v)
+                #print(f'{v[0]} Victim Detected at ({v[1]}, {v[2]})')
+                print(distance_sensor.getValue())
+        else:
+            print("No victim detected")
+        if( len(detected_victims)>0):
+            break
 
 
-    
+
+def main():
+    run()
+
+    if len(detected_victims)>0:
+        print("Detected Victims:")
+        for v in detected_victims:
+            print(f"{v[0]} at Processing at ({v[1]}, {v[2]})")
+    else:
+        print("No victims detected")
 
 
+if __name__ == "__main__":
+    main()
 
-        

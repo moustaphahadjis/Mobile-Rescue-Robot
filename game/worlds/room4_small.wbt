@@ -27,8 +27,8 @@ WorldInfo {
   ]
 }
 DEF Viewpoint Viewpoint {
-  orientation -0.039925826191075084 0.6051339470832359 0.7951218991390085 4.096416356855558
-  position 0.33264779582895054 0.6907774456774833 -0.41378192745133696
+  orientation -0.8233626039106232 0.4788201768111826 0.3046395587576016 1.8728370256223255
+  position -0.5773883658922352 0.21594693018478814 0.4064775943488292
   followType "None"
 }
 TexturedBackground {
@@ -611,23 +611,40 @@ DEF MAINSUPERVISOR Robot {
   window "MainSupervisorWindow"
 }
 E-puck {
-  hidden position_0_0 1.6833039002067566e-08
-  hidden position_0_1 1.2394060481403676e-08
-  hidden linearVelocity_0 -8.04209096233617e-07 -4.0408523555395114e-08 2.0026759873390937e-07
-  hidden angularVelocity_0 1.3364132444134967e-05 -1.1569568618885908e-07 5.364812242062962e-05
-  hidden rotation_1 0 1 0 0.5162684065381157
-  hidden linearVelocity_1 -1.0697603507329027e-06 -1.924635774752615e-07 2.656699861811558e-07
-  hidden angularVelocity_1 1.3301333188885214e-05 -1.1568288429196303e-07 5.3484008569971655e-05
-  hidden rotation_2 0 0.9999999999999999 0 2.4610372908141875
-  hidden linearVelocity_2 -1.0752188577178456e-06 1.6732629881665657e-07 2.685274948224538e-07
-  hidden angularVelocity_2 1.3411565731859848e-05 -1.1570842923558373e-07 5.377257615504609e-05
-  translation -0.19896628161399002 -0.030031977894230642 -0.02813305893575154
-  rotation -0.9667859015862705 0.1808383226049835 0.18061705780860715 1.604610420924018
+  hidden position_0_0 -3.071144572271974e-08
+  hidden position_0_1 -3.071144018103349e-08
+  hidden linearVelocity_0 0.00012668883107881196 1.0198329865337049e-07 -0.00010016506138179945
+  hidden angularVelocity_0 -0.006677736979676628 8.881452223905772e-13 -0.008446005827973817
+  hidden rotation_1 0 1 0 0.5162683924568917
+  hidden linearVelocity_1 0.000168918158477654 3.56511575815551e-10 -0.0001335532641512822
+  hidden angularVelocity_1 -0.006677641813324294 2.426606734918713e-10 -0.00844588547769465
+  hidden rotation_2 0 0.9999999999999999 0 2.4610373172051783
+  hidden linearVelocity_2 0.00016891822915210327 3.5732692360560623e-10 -0.0001335531746401388
+  hidden angularVelocity_2 -0.006677641828907244 -2.4083755549468475e-10 -0.008445885465417616
+  translation -0.2043989740629096 -0.030031945504945062 0.03073625911323945
+  rotation -0.8975040364569514 0.31269012728062817 0.31098454759795374 1.6793806932976825
   controller "controller3"
   camera_fieldOfView 0.9
   camera_width 1080
   camera_height 720
   turretSlot [
+    DistanceSensor {
+      translation 0.045 0 -0.02091
+      rotation 0 0 1 1.0472
+      name "distance_sensor"
+      lookupTable [
+        0 0 0
+        1 1 0
+        2 2 0
+        3 3 0
+        4 4 0
+        5 5 0
+        10 10 0
+      ]
+      type "laser"
+    }
+    Compass {
+    }
     LightSensor {
       translation 0.03 0.03 0
       name "left_heat_sensor"
@@ -651,6 +668,7 @@ E-puck {
       ]
     }
     Camera {
+      translation 0.04 0 -0.05
       name "colour_camera"
       recognitionColors [
         0.713726 0.580392 0.32549
@@ -670,7 +688,7 @@ E-puck {
       recognitionColors [
         1 1 1
       ]
-      width 1280
+      width 1080
       height 720
       recognition Recognition {
       }
@@ -682,7 +700,7 @@ E-puck {
       recognitionColors [
         1 1 1
       ]
-      width 1280
+      width 1080
       height 720
       recognition Recognition {
       }
