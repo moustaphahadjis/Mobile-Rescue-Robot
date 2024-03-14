@@ -28,7 +28,7 @@ WorldInfo {
 }
 DEF Viewpoint Viewpoint {
   orientation 0.4113962671935679 0.39621522739757065 0.8208328727076479 4.525073576152231
-  position -0.1078320786681054 1.5653591043387165 -1.999664367133922
+  position -0.3202444799717347 0.8175398761299089 -1.1372674018975168
 }
 TexturedBackground {
 }
@@ -1231,13 +1231,33 @@ DEF MAINSUPERVISOR Robot {
   window "MainSupervisorWindow"
 }
 E-puck {
-  translation -0.479741 -0.0300321 -0.473808
-  rotation -0.6270339634385912 -0.5508299678819318 -0.5508309678818735 2.02146
-  controller "controller2"
+  hidden rotation_1 0 1 0 1.5272864623024789
+  hidden rotation_2 0 1 0 1.607668955511847
+  translation -0.4754069720824191 -0.03003198151822012 -0.44390818110575575
+  rotation -0.3094369174575199 -0.6725636184161031 -0.672240264561285 2.542687198557727
+  controller "explorationController"
   camera_fieldOfView 0.9
   camera_width 1280
   camera_height 720
   turretSlot [
+    DistanceSensor {
+      name "laser"
+      lookupTable [
+        0 0 0
+        1 1 0
+        2 2 0
+        3 3 0
+        4 4 0
+        5 5 0
+        10 10 0
+      ]
+      type "laser"
+      aperture 0.01
+    }
+    InertialUnit {
+    }
+    Compass {
+    }
     LightSensor {
       translation 0.03 0.03 0
       name "left_heat_sensor"
