@@ -28,7 +28,7 @@ WorldInfo {
 }
 DEF Viewpoint Viewpoint {
   orientation 0.4113962671935679 0.39621522739757065 0.8208328727076479 4.525073576152231
-  position -0.1078320786681054 1.5653591043387165 -1.999664367133922
+  position -0.48790537867857786 0.8861811589307105 -1.317688007306127
 }
 TexturedBackground {
 }
@@ -1231,13 +1231,20 @@ DEF MAINSUPERVISOR Robot {
   window "MainSupervisorWindow"
 }
 E-puck {
-  translation -0.479741 -0.0300321 -0.473808
-  rotation -0.6270339634385912 -0.5508299678819318 -0.5508309678818735 2.02146
-  controller "controller2"
+  hidden position_0_0 1.40216337875825e-08
+  hidden position_0_1 1.4021660219125728e-08
+  translation -0.4797410000007122 -0.030031980997891505 -0.4738080000054845
+  rotation -0.6270364288034432 -0.5508291531585425 -0.550828976165985 2.021468125457528
+  controller "lidarTest"
   camera_fieldOfView 0.9
   camera_width 1280
   camera_height 720
   turretSlot [
+    Lidar {
+      horizontalResolution 5
+      fieldOfView 3.14
+      numberOfLayers 1
+    }
     LightSensor {
       translation 0.03 0.03 0
       name "left_heat_sensor"
