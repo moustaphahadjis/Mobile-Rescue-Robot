@@ -27,8 +27,8 @@ WorldInfo {
   ]
 }
 DEF Viewpoint Viewpoint {
-  orientation 0.4113962671935679 0.39621522739757065 0.8208328727076479 4.525073576152231
-  position -0.48790537867857786 0.8861811589307105 -1.317688007306127
+  orientation 0.1495728234953208 0.15965374778361574 0.9757759226842418 4.686228853706127
+  position 0.5974042190807516 2.841522647906193 -1.134389300776368
 }
 TexturedBackground {
 }
@@ -1231,18 +1231,26 @@ DEF MAINSUPERVISOR Robot {
   window "MainSupervisorWindow"
 }
 E-puck {
-  hidden position_0_0 1.40216337875825e-08
-  hidden position_0_1 1.4021660219125728e-08
-  translation -0.4797410000007122 -0.030031980997891505 -0.4738080000054845
-  rotation -0.6270364288034432 -0.5508291531585425 -0.550828976165985 2.021468125457528
+  hidden position_0_0 -1.915763626345408
+  hidden position_0_1 1.3517680405862917e-06
+  hidden rotation_1 0 -1 0 1.915763626345408
+  hidden rotation_2 0 1 0 1.3516593540249803e-06
+  translation -0.494194 -0.0300332 -0.451006
+  rotation -0.5983101448649638 -0.5665821371828667 -0.566577137181656 2.06325
   controller "lidarTest"
   camera_fieldOfView 0.9
   camera_width 1280
   camera_height 720
   turretSlot [
+    Compass {
+    }
+    Display {
+      width 1000
+      height 1000
+    }
     Lidar {
-      horizontalResolution 5
-      fieldOfView 3.14
+      horizontalResolution 10
+      fieldOfView 6.283
       numberOfLayers 1
     }
     LightSensor {
