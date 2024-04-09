@@ -58,13 +58,7 @@ def detect_visual_with_ocr(image_data, img, camera):
             text = extract_text(roi)
 
             if text in ['U', 'H', 'S']:
-                # Create a unique identifier for the victim
-                victim_id = f'{text}_{x}_{y}'
 
-                # Check if the victim has been seen before
-                if victim_id not in seen_victims:
-                    print(f'{text.capitalize()} Victim Detected')
-                    seen_victims.append(victim_id)
     return victims
 
 def detect_floor_color(image_data, camera):
@@ -76,10 +70,11 @@ def detect_floor_color(image_data, camera):
 
     hsv = cv2.cvtColor(roi, cv2.COLOR_BGR2HSV)
 
-    brown_lower = np.array([10, 100, 20])
-    brown_upper = np.array([20, 255, 200])
+    brown_lower = np.array([36, 57.7, 58.4])
+    brown_upper = np.array([45, 49.7, 61.6])
     black_lower = np.array([0, 0, 0])
     black_upper = np.array([180, 255, 30])
+  
 
     brown_mask = cv2.inRange(hsv, brown_lower, brown_upper)
     black_mask = cv2.inRange(hsv, black_lower, black_upper)
