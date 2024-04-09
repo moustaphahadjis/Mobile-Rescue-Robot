@@ -28,38 +28,52 @@ initGPS = gps.getValues()
 leftMotor = robot.getDevice("left wheel motor")
 rightMotor = robot.getDevice("right wheel motor")
 
-
+laser1 = robot.getDevice('laser1')
+laser2 = robot.getDevice('laser2')
+laser3 = robot.getDevice('laser3')
+laser1.enable(timestep)
+laser2.enable(timestep)
+laser3.enable(timestep)
+def getLaser(dist,currentPos):
+    angle = math.radians(180)
+    y = dist* math.sin(angle) 
+    x = dist* math.cos(angle) 
+    print(f'[{x, y}]')
+    return [ x*displayRes*scale + currentPos[0] , -y*displayRes*scale + currentPos[1] ]
 #Get angle of each Beam
 #totalAngle = 6.283
-totalAngle = 360
-numBeams = 10
-anglePerBeam = totalAngle/numBeams
+totalAngle = 180
+numBeams = 3
+anglePerBeam = totalAngle/(numBeams-1)
 
 def getBeams(robotOrientation, values, currentPos):
     result = np.zeros((numBeams,3))
     #i = numBeams-1
     #while i >=0:
     for i in range(numBeams):
-        angle = (i*anglePerBeam) + robotOrientation
-        if angle>360:
-            angle = angle-360
+     if i == 0:
+        angle = math.radians(i*anglePerBeam )  # + robotOrientation
         
+        #print(angle)
         y = values[i] * math.sin(angle) 
-        x = values[i] * math.cos(angle)
+        x = values[i] * math.cos(angle) 
 
         
-        result[i][0] = x*displayRes*0.5 + currentPos[0] if values[i]<0.8 else 0
-        result[i][1] = -y*displayRes*0.5 + currentPos[1] if values[i]<0.8 else 0
+        result[i][0] = x*displayRes*scale + currentPos[0] if (values[i]<0.5 and values[i]>0.05) else 0
+        result[i][1] = y*displayRes*scale + currentPos[1] if (values[i]<0.5 and values[i]>0.05) else 0
         result[i][2] = (values[i])
         
     
     return result
 
 def drawBeams(points,map):
+    count = 0
     for i in range(numBeams):
-        if(points[i][0] !=0 and points[i][1]!=0):
+        if(points[i][0] !=0 or points[i][1]!=0):
             #display.drawPixel(points[i][0],points[i][1])
             map.setWall(points[i][0],points[i][1])
+            count+=1
+    #print(count)
 
 def drawTrack(initGPS, map):
     x0 = -gps.getValues()[0] + initGPS[0]
@@ -81,18 +95,21 @@ def getOrientation():
 
 def main():
  move = Move(robot,)
- map = Map(robot,displayRes)
+ map = Map(robot,timestep)
 
  robot.step(1000)
  initGPS = gps.getValues()
  currentPos = (0,0)
  while robot.step(timestep) != -1:
-    vals = lidar.getRangeImage()
-    print(  gps.getValues())
-    beams = getBeams(getOrientation(),vals, currentPos)
-    drawBeams(beams,map)
+    #vals = lidar.getRangeImage()
+    #print(  lidar.getFov())
+    #beams = getBeams(getOrientation(),vals, currentPos)
+    #drawBeams(beams,map)
     currentPos = drawTrack(initGPS,map)
     move.forward()
+    print(getOrientation())
+    
+    map.detectWall(currentPos, 360-getOrientation())
     #print(beams[0])
     
     #drawBeams(beams)
