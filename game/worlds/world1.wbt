@@ -27,8 +27,8 @@ WorldInfo {
   ]
 }
 DEF Viewpoint Viewpoint {
-  orientation 0.2216206303816772 0.4902802333451295 0.8429173085067558 4.390414737243091
-  position -0.3468539291568752 0.30802002063159656 -0.4035342206791289
+  orientation 0.19766356151123332 -0.7000191531984604 -0.6862232155836797 2.860965272343303
+  position 1.0032668789470276 0.8615669817714844 0.14740056732323453
 }
 TexturedBackground {
 }
@@ -1231,25 +1231,13 @@ DEF MAINSUPERVISOR Robot {
   window "MainSupervisorWindow"
 }
 E-puck {
-  translation -0.443695 -0.0300319 -0.111034
+  translation -0.487067 -0.0300319 -0.106705
   rotation -0.590942346579434 -0.5711981940423095 -0.5696663638850341 2.0763230321369335
   controller "lidarTest"
   camera_fieldOfView 0.9
   camera_width 1280
   camera_height 720
   turretSlot [
-    DistanceSensor {
-      rotation 0 1 0 0
-      name "laser2"
-      lookupTable [
-        0 0 0
-        0.1 0.1 0
-        0.2 0.2 0
-        1 1 0
-      ]
-      type "laser"
-      aperture 0.5
-    }
     DistanceSensor {
       rotation 0 0 1 -1.57
       name "laser1"
@@ -1263,8 +1251,67 @@ E-puck {
       aperture 0.01
     }
     DistanceSensor {
-      rotation 0 0 1 1.57
+      rotation 0 0 1 -1.04
+      name "laser2"
+      lookupTable [
+        0 0 0
+        0.1 0.1 0
+        0.2 0.2 0
+        1 1 0
+      ]
+      type "laser"
+      aperture 0.01
+    }
+    DistanceSensor {
+      rotation 0 0 1 -0.52
       name "laser3"
+      lookupTable [
+        0 0 0
+        0.1 0.1 0
+        0.2 0.2 0
+        1 1 0
+      ]
+      type "laser"
+      aperture 0.01
+    }
+    DistanceSensor {
+      name "laser4"
+      lookupTable [
+        0 0 0
+        0.1 0.1 0
+        0.2 0.2 0
+        1 1 0
+      ]
+      type "laser"
+      aperture 0.01
+    }
+    DistanceSensor {
+      rotation 0 0 1 0.52
+      name "laser5"
+      lookupTable [
+        0 0 0
+        0.1 0.1 0
+        0.2 0.2 0
+        1 1 0
+      ]
+      type "laser"
+      aperture 0.01
+    }
+    DistanceSensor {
+      rotation 0 0 1 1.04
+      name "laser6"
+      lookupTable [
+        0 0 0
+        0.1 0.1 0
+        0.2 0.2 0
+        1 1 0
+      ]
+      type "laser"
+      aperture 0.01
+    }
+    DistanceSensor {
+      rotation 0 0 1 1.57
+      name "laser7"
       lookupTable [
         0 0 0
         0.1 0.1 0
@@ -1279,13 +1326,6 @@ E-puck {
     Display {
       width 1000
       height 1000
-    }
-    Lidar {
-      translation 0 0 0.01
-      horizontalResolution 3
-      fieldOfView 3.1415
-      numberOfLayers 1
-      maxRange 0.5
     }
     LightSensor {
       translation 0.03 0.03 0
@@ -1310,6 +1350,8 @@ E-puck {
       ]
     }
     Camera {
+      translation 0.04 0 -0.03
+      rotation 0 1 0 0.52
       name "colour_camera"
       recognitionColors [
         0.713726 0.580392 0.32549

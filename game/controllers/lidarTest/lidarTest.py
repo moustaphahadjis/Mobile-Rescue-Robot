@@ -3,15 +3,13 @@ import math
 import numpy as np
 from move import Move
 from map import Map
+from detection import Detection
 
 from controller import Robot
 
 robot = Robot()
 timestep = int(robot.getBasicTimeStep())
 
-lidar = robot.getDevice('lidar')
-lidar.enable(timestep)
-lidar.enablePointCloud()
 
 compass = robot.getDevice('compass')
 compass.enable(timestep)
@@ -94,10 +92,11 @@ def getOrientation():
 
 
 def main():
- move = Move(robot,)
  map = Map(robot,timestep)
+ move = Move(robot,timestep, map.lasers)
+ detect = Detection(robot, timestep)
 
- robot.step(1000)
+ robot.step(100)
  initGPS = gps.getValues()
  currentPos = (0,0)
  while robot.step(timestep) != -1:
@@ -105,13 +104,13 @@ def main():
     #print(  lidar.getFov())
     #beams = getBeams(getOrientation(),vals, currentPos)
     #drawBeams(beams,map)
-    currentPos = drawTrack(initGPS,map)
-    move.forward()
-    print(getOrientation())
-    
+        #currentPos = drawTrack(initGPS,map)
+    # move.followWall()
+    #print(getOrientation())
+    #move.turn90()
     map.detectWall(currentPos, 360-getOrientation())
     #print(beams[0])
-    
+    detect.run()
     #drawBeams(beams)
     #print((lidar.getRangeImage()))
     #aaa = lidar.getPointCloud()
