@@ -5,6 +5,8 @@ import math
 
 class Detection:
     def __init__(self,robot, timestep):
+        self.robot = robot
+        self.timestep = timestep
         self.camera = robot.getDevice('camera')
         self.colour_camera = robot.getDevice('colour_camera')
 
@@ -23,19 +25,19 @@ class Detection:
         self.seen_victims = []
 
 # Function to preprocess the image for victim detection
-    def preprocess_image(image_data, camera):
+    def preprocess_image(self,image_data, camera):
         img = np.array(np.frombuffer(image_data, np.uint8).reshape((camera.getHeight(), camera.getWidth(), 4)))
         gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
         thresh = cv2.threshold(gray, 140, 255, cv2.THRESH_BINARY)[1]
         return thresh
 
 # Function to detect contours
-    def detect_contours(thresh):
+    def detect_contours(self,thresh):
         contours, _ = cv2.findContours(thresh, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
         return contours
 
 # Function to extract text using OCR
-    def extract_text(roi):
+    def extract_text(self,roi):
         text = pytesseract.image_to_string(cv2.cvtColor(roi, cv2.COLOR_BGR2RGB), config=self.TESSERACT_CONFIG).strip()
         return text
 
@@ -89,7 +91,7 @@ class Detection:
         return floor_value
 
     def run(self):
-    #while robot.step(timestep) != -1:
+      while self.robot.step(self.timestep) != -1:
         # Process images from all cameras for victim detection
     
         img_data = self.camera.getImage()

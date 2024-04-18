@@ -27,8 +27,8 @@ WorldInfo {
   ]
 }
 DEF Viewpoint Viewpoint {
-  orientation 0.19766356151123332 -0.7000191531984604 -0.6862232155836797 2.860965272343303
-  position 1.0032668789470276 0.8615669817714844 0.14740056732323453
+  orientation -0.06324084824681266 -0.020445203425147884 -0.9977888497923435 1.571211679131244
+  position 0.039806273060556674 1.4676329474721477 -0.22086441120101155
 }
 TexturedBackground {
 }
@@ -1231,15 +1231,28 @@ DEF MAINSUPERVISOR Robot {
   window "MainSupervisorWindow"
 }
 E-puck {
-  translation -0.487067 -0.0300319 -0.106705
-  rotation -0.590942346579434 -0.5711981940423095 -0.5696663638850341 2.0763230321369335
+  hidden position_0_0 5.951737716031673
+  hidden position_0_1 -3.767162484419159
+  hidden linearVelocity_0 0.028436387066097107 0.0011145937301558315 0.02424773218513876
+  hidden angularVelocity_0 -0.019807485399800866 -0.9361416929450859 0.03660543494802998
+  hidden rotation_1 0 -1 0 1.5028702661476543
+  hidden linearVelocity_1 0.0020204198850730277 -0.0034709017155077804 0.0009827003128738648
+  hidden angularVelocity_1 -1.824524410222556 -1.3208743566305068 2.6074051970729357
+  hidden rotation_2 0 1 0 4.96133545400523
+  hidden linearVelocity_2 0.04737194368771229 0.0012399394774676943 0.0390270161634718
+  hidden angularVelocity_2 1.8816077405752185 -0.9319891673998008 -2.462291315421716
+  translation -0.44163770626803733 -0.03016016923339764 -0.2291093272477756
+  rotation -0.23478524531763373 0.6863715449785165 0.6883095167328014 2.6778051479552274
   controller "lidarTest"
   camera_fieldOfView 0.9
   camera_width 1280
   camera_height 720
   turretSlot [
+    InertialUnit {
+      name "iunit"
+    }
     DistanceSensor {
-      rotation 0 0 1 -1.57
+      rotation 0 0 1 -1.5708
       name "laser1"
       lookupTable [
         0 0 0
@@ -1251,7 +1264,7 @@ E-puck {
       aperture 0.01
     }
     DistanceSensor {
-      rotation 0 0 1 -1.04
+      rotation 0 0 1 -1.0472
       name "laser2"
       lookupTable [
         0 0 0
@@ -1263,7 +1276,7 @@ E-puck {
       aperture 0.01
     }
     DistanceSensor {
-      rotation 0 0 1 -0.52
+      rotation 0 0 1 -0.523599
       name "laser3"
       lookupTable [
         0 0 0
@@ -1275,6 +1288,7 @@ E-puck {
       aperture 0.01
     }
     DistanceSensor {
+      rotation 0 0 1 -0.261799
       name "laser4"
       lookupTable [
         0 0 0
@@ -1286,7 +1300,7 @@ E-puck {
       aperture 0.01
     }
     DistanceSensor {
-      rotation 0 0 1 0.52
+      rotation 0 0 1 0.261799
       name "laser5"
       lookupTable [
         0 0 0
@@ -1298,7 +1312,7 @@ E-puck {
       aperture 0.01
     }
     DistanceSensor {
-      rotation 0 0 1 1.04
+      rotation 0 0 1 0.523599
       name "laser6"
       lookupTable [
         0 0 0
@@ -1310,8 +1324,31 @@ E-puck {
       aperture 0.01
     }
     DistanceSensor {
-      rotation 0 0 1 1.57
+      rotation 0 0 1 1.0472
       name "laser7"
+      lookupTable [
+        0 0 0
+        0.1 0.1 0
+        0.2 0.2 0
+        1 1 0
+      ]
+      type "laser"
+      aperture 0.01
+    }
+    DistanceSensor {
+      rotation 0 0 1 1.5708
+      name "laser8"
+      lookupTable [
+        0 0 0
+        0.1 0.1 0
+        0.2 0.2 0
+        1 1 0
+      ]
+      type "laser"
+      aperture 0.01
+    }
+    DistanceSensor {
+      name "laser9"
       lookupTable [
         0 0 0
         0.1 0.1 0
