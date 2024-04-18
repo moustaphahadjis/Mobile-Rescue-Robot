@@ -4,7 +4,8 @@ import numpy as np
 from move import Move
 from map import Map
 from detection import Detection
-
+from explore import Explore
+import time
 from controller import Robot
 
 robot = Robot()
@@ -73,6 +74,15 @@ def drawBeams(points,map):
             count+=1
     #print(count)
 
+def xyToGps(initGPS, x,y):
+    x0 = (x - pos[0])/(scale*displayRes)
+    y0 = (y - pos[1])/(scale*displayRes)
+
+    x1 = -x0 + initGPS[0]
+    y1 = -y0 + initGPS[2]
+
+    return (y1,x1)
+
 def drawTrack(initGPS, map):
     x0 = -gps.getValues()[0] + initGPS[0]
     y0 = -gps.getValues()[2] + initGPS[2]
@@ -83,22 +93,23 @@ def drawTrack(initGPS, map):
     return (x,y)
     #print(f'{x,y}')
 
-def getOrientation():
-    rad = math.atan2(compass.getValues()[1], compass.getValues()[0])
-    bearing = (rad - 1.5708) / 3.14159 * 180.0
-    if (bearing < 0.0):
-        bearing = bearing + 360.0
-    return bearing
 
-
+iunit = robot.getDevice('iunit')
+iunit.enable(timestep)
 def main():
- map = Map(robot,timestep)
+ 
+ robot.step(timestep)
+ initGPS = gps.getValues()
+ map = Map(robot,timestep,initGPS)
  move = Move(robot,timestep, map.lasers)
  detect = Detection(robot, timestep)
+ explore = Explore()
 
- robot.step(100)
- initGPS = gps.getValues()
- currentPos = (0,0)
+ 
+ makePath  = True
+ pos = 0
+ path=()
+ t1 = 0
  while robot.step(timestep) != -1:
     #vals = lidar.getRangeImage()
     #print(  lidar.getFov())
@@ -108,14 +119,73 @@ def main():
     # move.followWall()
     #print(getOrientation())
     #move.turn90()
-    map.detectWall(currentPos, 360-getOrientation())
-    #print(beams[0])
-    detect.run()
-    #drawBeams(beams)
-    #print((lidar.getRangeImage()))
-    #aaa = lidar.getPointCloud()
-    #print(aaa[1])
-    print('----------------------------------------')
+    #print(map.world)
+    #currentPos = drawTrack(initGPS, map)
+    #map.detectWall(currentPos, move.getOrientation())
+  #print(xyToGps(initGPS, 500, 510))
+  #print(gps.getValues())
+  
+    #move.moveTo((500,500),(550,550))
+ if len(detect.run()[0])>0:
+     
+ if False:
+    if makePath:
+        #while path is secure
+        move.startMapping(map)
+        end = explore.randomEnd1()
+        print('Generating new path')
+        print('-------------------------------------------')
+        path = explore.pathFinder(map.world, map.curr, end)
+        #print(map.curr)
+        if len(path)>10:
+            if not map.securePath(path):
+                pos = 10
+                map.setPath(path)
+
+                makePath = False
+                pos =0
+                t1 = time.time()
+    #print(path)
+    #print(gps.getValues())
+    #print(xyToGps(initGPS, 500,500))
+
+    else:
+       t2 = time.time()
+       next = path[pos]
+       if (move.moveTo(map, next)):
+          pos = pos+10
+        
+       if pos>len(path) or t2-t1>10:
+            move.stop()
+            map.removePath(path)
+            makePath = True
+    if False:
+    
+        t2 = time.time()
+        if( t2-t1)>15:
+            print('Outer time out')
+   # map.securePath(path)
+        
+        #while robot.step(timestep) != -1:
+        #print(pos)
+        next =path[pos]
+        #continue mapping
+        #currentPos = drawTrack(initGPS, map)
+        #map.detectWall(currentPos, move.getOrientation())
+        loc = xyToGps(initGPS, next[0], next[1])
+        
+        
+        if move.goTo(loc, map, path)==1:
+            print('Incrimenting')
+            pos = pos +10
+        
+        if pos >=len(path) or move.goTo(loc, map, path)==2 or t2-t1>5:
+            move.stop()
+            map.removePath(path)
+            makePath = True
+
+        
+    print('-------------------------------------------')
     pass
 
 
