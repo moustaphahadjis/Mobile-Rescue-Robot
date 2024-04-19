@@ -102,7 +102,7 @@ def main():
  initGPS = gps.getValues()
  map = Map(robot,timestep,initGPS)
  move = Move(robot,timestep, map.lasers)
- detect = Detection(robot, timestep)
+ detect = Detection(robot, timestep,move)
  explore = Explore()
 
  
@@ -111,6 +111,7 @@ def main():
  path=()
  t1 = 0
  while robot.step(timestep) != -1:
+  detect.run()
     #vals = lidar.getRangeImage()
     #print(  lidar.getFov())
     #beams = getBeams(getOrientation(),vals, currentPos)
@@ -126,9 +127,9 @@ def main():
   #print(gps.getValues())
   
     #move.moveTo((500,500),(550,550))
- if len(detect.run()[0])>0:
-     
- if False:
+ #if len(detect.run()[0])>0:
+  
+  if False:
     if makePath:
         #while path is secure
         move.startMapping(map)

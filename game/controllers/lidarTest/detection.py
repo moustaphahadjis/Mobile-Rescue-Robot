@@ -1,14 +1,12 @@
 import cv2
 import numpy as np
 import pytesseract
-import math
 import easyocr
-import matplotlib.pyplot as plt
 
 class Detection:
-    def __init__(self,robot, timestep, move):
-        self.robot=robot
-        self.timestep=timestep
+    def __init__(self, robot, timestep, move):
+        self.robot = robot
+        self.timestep = timestep
         self.camera = robot.getDevice('camera')
         self.colour_camera = robot.getDevice('colour_camera')
         self.compass = robot.getDevice('compass')  
@@ -19,41 +17,79 @@ class Detection:
         self.laser4.enable(timestep)
 
         pytesseract.pytesseract.tesseract_cmd = 'C:/Program Files/Tesseract-OCR/tesseract.exe'
-
-# Tesseract configuration options
         self.TESSERACT_CONFIG = "--psm 6 --oem 3"
         self.reader = easyocr.Reader(['en'], gpu=True)  # Adjust 'gpu' based on your setup
 
-# Set victim detection parameters
         self.MIN_CONTOUR_AREA = 10
         self.MAX_CONTOUR_AREA = 100    
 
-# Initialize seen_victims list
-        self.seen_victims = []
-        self.seen_hazzards = []
+        self.hazard_keywords = {
+            'FLAMMABLE GAS': ['FLAMMABLE', 'GAS', '2'],
+            'CORROSIVE': ['CORROSIVE', '8'],
+            'POISON': ['POISON', '6'],
+            'ORGANIC PEROXIDE': ['ORGANIC', 'PEROXIDE', '5.2']
+        }
+        self.victim_keywords = {
+            'Harmed Victim': ['H'],
+            'Stable Victim': ['S'],
+            'Unharmed Victim': ['U']
+        }
+
+        self.seen_hazards = {key: {} for key in self.hazard_keywords}
+        self.hazard_updates = {key: {} for key in self.hazard_keywords}
+        self.seen_victims = {key: {} for key in self.victim_keywords}
+        self.victim_updates = {key: {} for key in self.victim_keywords}
         self.move = move
 
-
-
-# Function to preprocess the image for victim detection
-    def preprocess_image(self,image_data, camera):
+    def preprocess_image(self, image_data, camera):
         img = np.array(np.frombuffer(image_data, np.uint8).reshape((camera.getHeight(), camera.getWidth(), 4)))
         gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
         thresh = cv2.threshold(gray, 140, 255, cv2.THRESH_BINARY)[1]
         return thresh
 
-# Function to detect contours
-    def detect_contours(self,thresh):
+    def detect_contours(self, thresh):
         contours, _ = cv2.findContours(thresh, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
         return contours
 
-# Function to extract text using OCR
-    def extract_text(self,roi):
-        text = pytesseract.image_to_string(cv2.cvtColor(roi, cv2.COLOR_BGR2RGB), config=self.TESSERACT_CONFIG).strip()
-        return text
-    
-    
-    # return center_x to main 
+    def extract_victim(self, roi):
+        results = pytesseract.image_to_string(cv2.cvtColor(roi, cv2.COLOR_BGR2RGB), config=self.TESSERACT_CONFIG).strip()
+        if results in ['H', 'S', 'U']:
+            return [(results, 100)]  # Assuming maximum confidence if detected
+        return []
+
+    def extract_hazard(self, roi):
+        results = self.reader.readtext(roi)
+        return [(result[1].upper(), (result[2])*100) for result in results]
+
+    def update_detected_hazards(self, text, confidence):
+        for hazard, keywords in self.hazard_keywords.items():
+            if text in keywords:
+                current_conf = self.hazard_updates[hazard].get(text, 0)
+                if confidence > current_conf:
+                    self.hazard_updates[hazard][text] = confidence
+
+    def update_detected_victims(self, text, confidence):
+        for victim, keywords in self.victim_keywords.items():
+            if text in keywords:
+                current_conf = self.victim_updates[victim].get(text, 0)
+                if confidence > current_conf:
+                    self.victim_updates[victim][text] = confidence
+
+    def print_hazards(self):
+        for hazard, texts in self.hazard_updates.items():
+            max_text, max_conf = max(texts.items(), key=lambda item: item[1], default=(None, None))
+            if max_text:
+                print(f"Hazard Detected: {hazard} ({max_text}) with confidence {max_conf:.2f}%")
+        self.hazard_updates = {key: {} for key in self.hazard_keywords}
+
+    def print_victims(self):
+        for victim, texts in self.victim_updates.items():
+            max_text, max_conf = max(texts.items(), key=lambda item: item[1], default=(None, None))
+            if max_text:
+                print(f"Victim Detected: {victim} ({max_text}) with confidence {max_conf:.2f}%")
+        self.victim_updates = {key: {} for key in self.victim_keywords}  # Corrected reset
+
+
     def detect_victim_signs(self, image_data, img, camera):
         thresh = self.preprocess_image(image_data, camera)
         contours = self.detect_contours(thresh)
@@ -62,47 +98,27 @@ class Detection:
             if cv2.contourArea(contour) > self.MIN_CONTOUR_AREA:
                 x, y, w, h = cv2.boundingRect(contour)
                 roi = img[y:y+h, x:x+w]
-                text = self.extract_text(roi)
-                if text in ['U', 'H', 'S']:
-                    center_x = x + w / 2
-                    thr= 50
-                    if (camera.getWidth() / 2)-center_x < thr and (camera.getWidth() / 2)-center_x >- thr:
-                        self.move.stop()
-                    elif(camera.getWidth() / 2)>center_x+thr:
-                        self.move.left()
-                    elif (camera.getWidth() / 2)<center_x+thr:
-                        self.move.right()
-                    else:
-                        self.move.stop()
-                    
-                    gpsLoc=0
-                    print(self.laser4.getValue())
-                    print(f'Victim Detected: {text}')
-                    self.seen_victims.append((text,gpsLoc))
+                detected_texts = self.extract_victim(roi)
 
+                for text, confidence in detected_texts:
+                    self.update_detected_victims(text, confidence)
 
-
+        return self.seen_victims
 
     def detect_hazard_signs(self, image_data, img, camera):
         thresh = self.preprocess_image(image_data, camera)
         contours = self.detect_contours(thresh)
 
         for contour in contours:
-            area = cv2.contourArea(contour)
-            if area > self.MAX_CONTOUR_AREA:
+            if cv2.contourArea(contour) > self.MIN_CONTOUR_AREA:
                 x, y, w, h = cv2.boundingRect(contour)
                 roi = img[y:y+h, x:x+w]
-                text = self.extract_text(roi)
-                # Log detected hazards for visibility
-                if text in ['CORROSIVE', 'FLAMMABLE GAS', 'ORGANIC PEROXIDE', 'POISON']:
-                    print(f'Hazard Detected: {text}')
-                    self.seen_hazzards.append(text)
+                detected_texts = self.extract_hazard(roi)
 
-        return self.seen_hazzards
+                for text, confidence in detected_texts:
+                    self.update_detected_hazards(text, confidence)
 
-
-
-
+        return self.seen_hazards
 
 
     def detect_floor_color(self, image_data, camera):
@@ -110,7 +126,7 @@ class Detection:
 
         img = np.array(np.frombuffer(image_data, np.uint8).reshape((camera.getHeight(), camera.getWidth(), 4)))
 
-    
+    # Crop the image to focus on the likely floor area
         height, width, _ = img.shape
         roi = img[int(height * 0.5):height, :]
 
@@ -125,7 +141,7 @@ class Detection:
         brown_mask = cv2.inRange(hsv, brown_lower, brown_upper)
         black_mask = cv2.inRange(hsv, black_lower, black_upper)
 
-    
+    # Apply morphological operations to reduce noise
         kernel = np.ones((5, 5), np.uint8)
         brown_mask = cv2.morphologyEx(brown_mask, cv2.MORPH_CLOSE, kernel)
         black_mask = cv2.morphologyEx(black_mask, cv2.MORPH_CLOSE, kernel)
@@ -151,5 +167,7 @@ class Detection:
         # Process the colour_camera image for floor color detection
         floor_img_data = self.colour_camera.getImage()
         floor = self.detect_floor_color(floor_img_data, self.colour_camera)
+        self.print_hazards()  # Print summarized hazard detections
+        self.print_victims()  # Print summarized victim detections
 
         return (victims,hazzards,floor)
