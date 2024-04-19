@@ -227,22 +227,27 @@ class Move:
 
         dif = (r-o)%360
         #print(dif)
+        print('----')
         
-        while self.robot.step(self.timestep)!=-1:
-            cur = self.getOrientation()
-            map.mapping(cur, self.gps.getValues())
-            if cur < angle+3 and cur > angle -3:
-                val = True
-                self.stop()
-                #print('stop')
-                break
-            else:
-                if dif < 180:
-                    self.left()
-                else :
-                    self.right()
-        
+        #while self.robot.step(self.timestep)!=-1:
+            
+        cur = self.getOrientation()
+        #print(f'curr={cur}')
+        #map.mapping(cur, self.gps.getValues())
+        if cur < angle + 3 and cur > angle - 3:
+            val = True
+            #self.stop()
+            print('Roration done')
+            #break
+        else:
+            if dif < 180:
+                self.left()
+                val = False
+            else :
+                self.right()
+                val = False
         return val
+    
     def getAngle(self, next, curr):
         x = next[0]
         y = next[1]
@@ -270,17 +275,21 @@ class Move:
             a = -1
         return a
 
-    def moveTo(self, map, next):
+    def moveTo(self, map, next, path):
+        print('moving')
+        val = False
         map.mapping(self.getOrientation(), self.gps.getValues())
         dist = self.getDist(next,map.curr)
-        if dist>0.9:
+        if dist>2:
             angle = self.getAngle(next, map.curr)
             print(f'angle: {angle}, dist: {dist}')
             if self.rotate(angle, map):
                 self.forward()
-            return False
+            val = False
         else:
-            return True
+            val = True
+        
+        return val
 
 
     def goTo(self,gps2, map, path):

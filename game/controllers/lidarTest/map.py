@@ -108,10 +108,10 @@ class Map:
              
 
     def drawTrack(self, gps):
-        print(gps)
+        #print(gps)
         x0 = -gps[0] + self.initGPS[0]
         y0 = -gps[2] + self.initGPS[2]
-        print(x0)
+        #print(x0)
 
         x = x0*self.displayRes*self.scale + self.pos[0]
         y = y0*self.displayRes*self.scale + self.pos[1]

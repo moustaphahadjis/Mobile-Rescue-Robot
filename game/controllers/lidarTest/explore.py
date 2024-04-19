@@ -1,6 +1,8 @@
 import random
 import numpy as np
 from random import randrange
+import math
+import time
 class Node():
 
     def __init__(self, parent=None, position=None):
@@ -18,7 +20,75 @@ class Node():
 
 class Explore:
     def __init__(self):
-        self.maze = []
+        self.explored = []
+
+    def get_surrounding_square(self, x, y, distance):
+        surrounding_square = []
+        for i in range(x - distance, x + distance + 1):
+            for j in range(y - distance, y + distance + 1):
+                if abs(i - x) == distance or abs(j - y) == distance:
+                    surrounding_square.append((i, j,0))
+        return surrounding_square
+    
+    def getAvr(self):
+        explored_points = self.explored
+
+        total_x = 0
+        total_y = 0
+        for point in explored_points:
+            total_x += point[0]
+            total_y += point[1]
+
+        average_x = total_x / len(explored_points)
+        average_y = total_y / len(explored_points)
+       # print(f'Average {average_x,average_y}')
+        return (average_x, average_y)
+    
+    def getDist(self, start, end):
+       a = -start[0] + end[0]
+       b = -start[1] + end[1]
+
+       return math.sqrt(a**2 + b**2)
+    
+    def getEnd(self, map):
+        x = map.curr[0]
+        y = map.curr[1]
+        thr = 50
+        cells =np.array([
+            [x-thr, y,0], [x+thr, y,0],   
+            [x, y-thr,0], [x, y+thr,0],    
+            [x-thr, y-thr,0], [x+thr, y-thr,0],  
+            [x-thr, y+thr,0], [x+thr, y+thr,0]],)
+        
+        cells = np.array(self.get_surrounding_square(x,y, 20))
+        
+        #print(cells.shape)
+        if(len(self.explored)>0):
+            avr = self.getAvr()
+            for i in range(len(cells)):
+                dist = self.getDist(avr,[cells[i][0],cells[i][1]])
+                
+                #path = self.pathFinder(map.world, (x,y), (cells[i][0],cells[i][1]))
+                #if not map.securePath(path):
+                #    dist = dist- dist
+                cells[i][2] = dist
+
+            cells = cells[cells[:, 2].argsort()]
+            cell = cells[-1]    
+            #print(cells)
+        else:
+            cell = random.choice(cells)
+            
+            #path = self.pathFinder(map.world, (x,y), (cell[0],cell[1]))
+            #print(cell)
+            #paths.append(path)
+                
+        #print(f'path: {paths}')
+        self.explored.append(cell)
+        
+        return cell
+    
+        
     def randomEnd1(self):
         x = randrange(0,1000)
         y = randrange(0,1000)
@@ -46,7 +116,14 @@ class Explore:
         closed_list = []
 
         open_list.append(start_node)
+
+        t1 = time.time()
+
         while len(open_list) > 0:
+            t2 = time.time()
+
+            if t2 - t1>1:
+                return []
             current_node = open_list[0]
             current_index = 0
             for index, item in enumerate(open_list):

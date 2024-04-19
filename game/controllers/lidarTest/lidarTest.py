@@ -102,16 +102,20 @@ def main():
  initGPS = gps.getValues()
  map = Map(robot,timestep,initGPS)
  move = Move(robot,timestep, map.lasers)
- detect = Detection(robot, timestep,move)
+ #detect = Detection(robot, timestep,move)
  explore = Explore()
 
  
  makePath  = True
  pos = 0
  path=()
- t1 = 0
- while robot.step(timestep) != -1:
-  detect.run()
+ next=[]
+ t1 = time.time()
+
+ move.startMapping(map)
+ while robot.step(timestep)!=-2:
+  
+  #detect.run()
     #vals = lidar.getRangeImage()
     #print(  lidar.getFov())
     #beams = getBeams(getOrientation(),vals, currentPos)
@@ -128,7 +132,43 @@ def main():
   
     #move.moveTo((500,500),(550,550))
  #if len(detect.run()[0])>0:
-  
+  if makePath:
+    
+    print('new path')
+
+    robot.step(timestep)
+    next = (explore.getEnd(map))
+
+    path = explore.pathFinder(map.world, map.curr, (next[0], next[1]))
+
+    if not map.securePath(path):
+        print(f'Next: {next}')
+        makePath = False
+        map.setPath(path)
+        t1  = time.time()
+        print('----------------------------------------')
+  else:
+    
+    #while robot.step(timestep)!=-1:
+    con = True
+    t2 = time.time()
+    print(t2-t1)
+
+    if(t2-t1)>5 or not map.securePath(path):
+        makePath = True
+        con = False
+        print('Time Out')
+        
+    if con:
+        if move.moveTo(map, next,path):
+            map.removePath(path)
+            makePath = True
+    else:
+       makePath = True
+       print('Break')
+  pass
+    
+    
   if False:
     if makePath:
         #while path is secure
@@ -187,8 +227,9 @@ def main():
 
         
     print('-------------------------------------------')
-    pass
+  pass
 
 
 if __name__=='__main__':
     main()
+    print('end')
