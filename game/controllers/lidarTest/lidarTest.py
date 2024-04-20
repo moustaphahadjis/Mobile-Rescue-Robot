@@ -102,7 +102,7 @@ def main():
  initGPS = gps.getValues()
  map = Map(robot,timestep,initGPS)
  move = Move(robot,timestep, map.lasers)
- detect = Detection(robot, timestep,move)
+ #detect = Detection(robot, timestep,move)
  explore = Explore()
 
  
@@ -114,8 +114,8 @@ def main():
 
  move.startMapping(map)
  while robot.step(timestep)!=-2:
-    
-    detect.run()
+    move.tremaux(map)
+    #detect.run()
     if False:
 
   

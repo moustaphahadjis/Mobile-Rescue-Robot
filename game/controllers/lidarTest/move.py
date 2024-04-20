@@ -1,5 +1,6 @@
 import math
 import time
+import random
 
 class Move:
     def __init__(self, robot, timestep, lasers):
@@ -133,9 +134,9 @@ class Move:
             self.rightMotor.setVelocity(right_speed)
 
     def isFrontFree(self):
-        thr = 0.6
-        print(self.lasers[3].getValue() )
-        if self.lasers[3].getValue() > thr and self.lasers[4].getValue() > thr:
+        thr = 0.1
+        print(self.lasers[8].getValue() )
+        if self.lasers[8].getValue() > thr :
             return True
         else:
             print('Obstacle Front')
@@ -227,7 +228,7 @@ class Move:
         print(rr)
         return rr
     
-    def rotate(self, angle, map):
+    def rotate(self, angle):
         val = False
 
         r = angle%360
@@ -235,25 +236,25 @@ class Move:
 
         dif = (r-o)%360
         #print(dif)
-        print('----')
+        print(f'angle:{angle}')
         
-        #while self.robot.step(self.timestep)!=-1:
+        while self.robot.step(self.timestep)!=-1:
             
-        cur = self.getOrientation()
-        #print(f'curr={cur}')
-        #map.mapping(cur, self.gps.getValues())
-        if cur < angle + 3 and cur > angle - 3:
-            val = True
-            #self.stop()
-            print('Roration done')
-            #break
-        else:
-            if dif < 180:
-                self.left()
-                val = False
-            else :
-                self.right()
-                val = False
+            cur = self.getOrientation()
+            #print(f'curr={cur}')
+            #map.mapping(cur, self.gps.getValues())
+            if cur < angle + 3 and cur > angle - 3:
+                val = True
+                #self.stop()
+                print('Roration done')
+                break
+            else:
+                if dif < 180:
+                    self.slow_left()
+                    val = False
+                else :
+                    self.slow_right()
+                    val = False
         return val
     
     def getAngle(self, next, curr):
@@ -347,7 +348,53 @@ class Move:
        b = -start[1] + end[1]
 
        return math.sqrt(a**2 + b**2)
+    
+    def tremaux(self, map):
+        visited = dict()
+        while self.robot.step(self.timestep) != -1:
+            self.startMapping(map)
+            position = map.curr
+            if position not in visited:
+                visited[position] = 11
+            visited[position] += 10
+            
+            if visited[position] > 10 :
+                print('visited')
+                print(self.isFrontFree())
+                if self.isFrontFree():
+                    # Move forward if front is clear and the path is less visited
+                    self.forward()
+                    self.robot.step(32)
+                else:
+                    # Turn randomly
+                    rand = random.Random(2)
+                    angle = 0
+                    print(rand)
+                    if rand ==0:
+                        angle = self.getOrientation()+90
+                    else:
+                        angle = self.getOrientation()-90
 
+                    print(f'asdjsd {angle}')
+
+                    if angle > 360:
+                        angle = angle-360
+                    if angle < 0:
+                        angle = 360 + angle
+                    
+                    if self.rotate(angle):
+                        self.stop()
+            else:
+                # Backtrack or turn around if this path is highly visited
+                angle = self.getOrientation() - 180
+                print(angle)
+                if angle>360:
+                    angle = angle-360
+                if angle<0:
+                    angle = 360 + angle
+                
+                if self.rotate(angle):
+                    self.stop()
 
 
                 
