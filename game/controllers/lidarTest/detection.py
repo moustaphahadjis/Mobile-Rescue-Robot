@@ -60,15 +60,33 @@ class Detection:
         contours = self.detect_contours(thresh)
         detected_signs = []
 
+        midFrame = False
         for contour in contours:
-            if cv2.contourArea(contour) > self.MIN_CONTOUR_AREA:
+            if cv2.contourArea(contour) > 6000 and cv2.contourArea(contour) < 10000 :
+                print(cv2.contourArea(contour))
                 x, y, w, h = cv2.boundingRect(contour)
                 roi = img[y:y+h, x:x+w]
-                detected_texts = self.extract_signs(roi)
-                for detected_text in detected_texts:
-                    for keyword_list in keywords.values():
-                        if detected_text in keyword_list:
-                            detected_signs.append(detected_text)
+
+                center_x = x + w / 2
+                thr= 50
+                if (camera.getWidth() / 2)-center_x < thr and (camera.getWidth() / 2)-center_x >- thr:
+                    self.move.stop()
+                elif(camera.getWidth() / 2)>center_x+thr:
+                    self.move.left()
+                elif (camera.getWidth() / 2)<center_x+thr:
+                    self.move.right()
+                else:
+                    midFrame = True
+                    self.move.stop()
+
+
+                print(self.laser4.getValue())
+                if midFrame:
+                    detected_texts = self.extract_signs(roi)
+                    for detected_text in detected_texts:
+                        for keyword_list in keywords.values():
+                            if detected_text in keyword_list:
+                                detected_signs.append(detected_text)
 
         return detected_signs
 
