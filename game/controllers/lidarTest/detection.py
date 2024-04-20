@@ -54,6 +54,21 @@ class Detection:
             for detected_text in detected_signs:
                 if detected_text in keyword_list:
                     print(f"{category} Detected")
+    
+    def check(self, center):
+        ini = 600
+        fin = 700
+        res = 0
+
+        if center >ini and center <fin:
+            res = 1
+        elif center <ini and center <fin:
+            res= 2
+        else:
+            res = 3
+        
+        return res
+
 
     def detect_signs(self, image_data, img, camera, keywords):
         thresh = self.preprocess_image(image_data, camera)
@@ -62,25 +77,38 @@ class Detection:
 
         midFrame = False
         for contour in contours:
-            if cv2.contourArea(contour) > 6000 and cv2.contourArea(contour) < 10000 :
+            if cv2.contourArea(contour) > 5000 and cv2.contourArea(contour) < 50000 :
                 print(cv2.contourArea(contour))
                 x, y, w, h = cv2.boundingRect(contour)
                 roi = img[y:y+h, x:x+w]
 
                 center_x = x + w / 2
-                thr= 50
+                thr= w*0.2
+                print(h)
+                """
                 if (camera.getWidth() / 2)-center_x < thr and (camera.getWidth() / 2)-center_x >- thr:
                     self.move.stop()
                 elif(camera.getWidth() / 2)>center_x+thr:
-                    self.move.left()
+                    print('Rotating left')
+                    self.move.slow_left()
                 elif (camera.getWidth() / 2)<center_x+thr:
-                    self.move.right()
+                    print('Rotating rihgt')
+                    self.move.slow_right()
                 else:
                     midFrame = True
                     self.move.stop()
+                """
+                res = self.check(center_x)
+                if res == 1:
+                    self.move.stop()
+                    midFrame = True
+                elif res == 2:
+                    self.move.slow_left()
+                elif res == 3:
+                    self.move.slow_right()
 
 
-                print(self.laser4.getValue())
+                #print(self.laser4.getValue())
                 if midFrame:
                     detected_texts = self.extract_signs(roi)
                     for detected_text in detected_texts:

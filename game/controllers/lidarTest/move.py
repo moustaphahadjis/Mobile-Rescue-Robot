@@ -40,6 +40,14 @@ class Move:
         self.leftMotor.setVelocity(self.max_speed/2)
         self.rightMotor.setVelocity(-self.max_speed/2)
     
+    def slow_left(self):
+        self.leftMotor.setVelocity(-self.max_speed/5)
+        self.rightMotor.setVelocity(self.max_speed/5)
+
+    def slow_right(self):
+        self.leftMotor.setVelocity(self.max_speed/5)
+        self.rightMotor.setVelocity(-self.max_speed/5)
+    
     def stop(self):
         self.leftMotor.setVelocity(0)
         self.rightMotor.setVelocity(0)
