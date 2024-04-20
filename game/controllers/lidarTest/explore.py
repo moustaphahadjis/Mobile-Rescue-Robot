@@ -3,6 +3,10 @@ import numpy as np
 from random import randrange
 import math
 import time
+import numpy as np
+from sklearn.model_selection import train_test_split
+from sklearn.neighbors import KNeighborsClassifier
+
 class Node():
 
     def __init__(self, parent=None, position=None):
@@ -30,6 +34,17 @@ class Explore:
                     surrounding_square.append((i, j,0))
         return surrounding_square
     
+    def knn(self,x,y, map):
+        X =  map.world[:1]
+        X = map.world.reshape(X.shape[0], -1)
+        Y = map.world[2]
+        knn = KNeighborsClassifier(n_neighbors=5)
+
+
+        knn.fit(X, Y)
+        return  knn.predict(np.array((x,y))) 
+
+        
     def getAvr(self):
         explored_points = self.explored
 
@@ -71,6 +86,8 @@ class Explore:
                 #path = self.pathFinder(map.world, (x,y), (cells[i][0],cells[i][1]))
                 #if not map.securePath(path):
                 #    dist = dist- dist
+                #knn = self.knn(x,y,map)
+                #print(f'Knn:{knn}')
                 cells[i][2] = dist
 
             cells = cells[cells[:, 2].argsort()]
@@ -85,6 +102,7 @@ class Explore:
                 
         #print(f'path: {paths}')
         self.explored.append(cell)
+        map.setExplored(cell[0],cell[1])
         
         return cell
     

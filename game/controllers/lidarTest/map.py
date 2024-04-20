@@ -77,6 +77,14 @@ class Map:
             self.display.setColor(0x00ff00)
             self.display.drawPixel(x,y)
     
+    def setExplored(self, x, y):
+     if x<self.displayRes and y <self.displayRes:
+        #print(x)
+        
+            self.world[int(x)][int(y)][0] = 10
+            #self.display.setColor(0x00ff00)
+            #self.display.drawPixel(x,y)
+    
     def setWall(self, x,y):
      if x<self.displayRes and y <self.displayRes:
         #print(x)
