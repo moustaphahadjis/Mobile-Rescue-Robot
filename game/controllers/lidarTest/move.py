@@ -135,11 +135,11 @@ class Move:
 
     def isFrontFree(self):
         thr = 0.1
-        print(self.lasers[8].getValue() )
+        #print(self.lasers[8].getValue() )
         if self.lasers[8].getValue() > thr :
             return True
         else:
-            print('Obstacle Front')
+            #print('Obstacle Front')
             return False
         
     def isRight(self):
@@ -228,7 +228,7 @@ class Move:
         print(rr)
         return rr
     
-    def rotate(self, angle):
+    def rotate(self, angle,map):
         val = False
 
         r = angle%360
@@ -236,17 +236,17 @@ class Move:
 
         dif = (r-o)%360
         #print(dif)
-        print(f'angle:{angle}')
+        #print(f'angle:{angle}')
         
         while self.robot.step(self.timestep)!=-1:
-            
+            self.startMapping(map)
             cur = self.getOrientation()
             #print(f'curr={cur}')
             #map.mapping(cur, self.gps.getValues())
             if cur < angle + 3 and cur > angle - 3:
                 val = True
                 #self.stop()
-                print('Roration done')
+                #print('Roration done')
                 break
             else:
                 if dif < 180:
@@ -341,7 +341,7 @@ class Move:
         
         print(f'-----{val}')
         return val
-    def startMapping(self,map):
+    def startMapping(self,map, ):
         map.mapping(self.getOrientation() , self.gps.getValues())
     def getDist(self, start, end):
        a = -start[0] + end[0]
@@ -349,9 +349,21 @@ class Move:
 
        return math.sqrt(a**2 + b**2)
     
-    def tremaux(self, map):
+    def tremaux(self, map,detect):
         visited = dict()
+        canDetect = True
+        
         while self.robot.step(self.timestep) != -1:
+            t1 = time.time()
+            if canDetect:
+                if detect.hasDetected():
+                    t2 = time.time()
+                    if(t2-t1)>10:
+                        canDetect = False
+                    self.stop()
+                    detect.run()
+                    print('Victim detected')
+
             self.startMapping(map)
             position = map.curr
             if position not in visited:
@@ -359,41 +371,39 @@ class Move:
             visited[position] += 10
             
             if visited[position] > 10 :
-                print('visited')
-                print(self.isFrontFree())
                 if self.isFrontFree():
                     # Move forward if front is clear and the path is less visited
                     self.forward()
-                    self.robot.step(32)
+                    #self.robot.step(32)
+                    canDetect = True
                 else:
                     # Turn randomly
                     rand = random.Random(2)
                     angle = 0
-                    print(rand)
+                    
                     if rand ==0:
                         angle = self.getOrientation()+90
                     else:
                         angle = self.getOrientation()-90
 
-                    print(f'asdjsd {angle}')
+                    
 
                     if angle > 360:
                         angle = angle-360
                     if angle < 0:
                         angle = 360 + angle
                     
-                    if self.rotate(angle):
+                    if self.rotate(angle,map):
                         self.stop()
             else:
                 # Backtrack or turn around if this path is highly visited
                 angle = self.getOrientation() - 180
-                print(angle)
                 if angle>360:
                     angle = angle-360
                 if angle<0:
                     angle = 360 + angle
                 
-                if self.rotate(angle):
+                if self.rotate(angle,map):
                     self.stop()
 
 

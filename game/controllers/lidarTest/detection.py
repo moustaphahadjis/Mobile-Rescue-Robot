@@ -2,9 +2,11 @@ import cv2
 import numpy as np
 #import pytesseract
 import easyocr
+import time
 
 class Detection:
-    def __init__(self, robot, timestep, move):
+    def __init__(self, robot, timestep, move,map):
+        self.map = map
         self.robot = robot
         self.timestep = timestep
         self.camera = robot.getDevice('camera')
@@ -77,35 +79,28 @@ class Detection:
 
         midFrame = False
         for contour in contours:
-            if cv2.contourArea(contour) > 5000 and cv2.contourArea(contour) < 50000 :
-                print(cv2.contourArea(contour))
+            if cv2.contourArea(contour) > 5000 and cv2.contourArea(contour) < 20000 :
+                #print(cv2.contourArea(contour))
                 x, y, w, h = cv2.boundingRect(contour)
                 roi = img[y:y+h, x:x+w]
 
                 center_x = x + w / 2
                 thr= w*0.2
-                print(h)
-                """
-                if (camera.getWidth() / 2)-center_x < thr and (camera.getWidth() / 2)-center_x >- thr:
-                    self.move.stop()
-                elif(camera.getWidth() / 2)>center_x+thr:
-                    print('Rotating left')
-                    self.move.slow_left()
-                elif (camera.getWidth() / 2)<center_x+thr:
-                    print('Rotating rihgt')
-                    self.move.slow_right()
-                else:
-                    midFrame = True
-                    self.move.stop()
-                """
+                #print(h)
                 res = self.check(center_x)
-                if res == 1:
-                    self.move.stop()
-                    midFrame = True
-                elif res == 2:
-                    self.move.slow_left()
-                elif res == 3:
-                    self.move.slow_right()
+                t1 = time.time()
+                while self.robot.step(self.timestep)!=-1:
+                    t2 = time.time()
+                    if t2-t1>5:
+                        break
+                    if res == 1:
+                        self.move.stop()
+                        midFrame = True
+                        break
+                    elif res == 2:
+                        self.move.slow_left()
+                    elif res == 3:
+                        self.move.slow_right()
 
 
                 #print(self.laser4.getValue())
@@ -115,6 +110,7 @@ class Detection:
                         for keyword_list in keywords.values():
                             if detected_text in keyword_list:
                                 detected_signs.append(detected_text)
+                                print(self.map.detectVictimLoc(self.move.getOrientation()))
 
         return detected_signs
 
@@ -155,6 +151,28 @@ class Detection:
 
         return floor_value
 
+    def checkSigns(self, image_data, img, camera, keywords):
+        thresh = self.preprocess_image(image_data, camera)
+        contours = self.detect_contours(thresh)
+        detected_signs = []
+
+        val = False
+        for contour in contours:
+            if cv2.contourArea(contour) > 5000 and cv2.contourArea(contour) < 20000 :
+                #print(cv2.contourArea(contour))
+                x, y, w, h = cv2.boundingRect(contour)
+                roi = img[y:y+h, x:x+w]
+
+                center_x = x + w / 2
+                thr= w*0.2
+                if self.check(center_x):
+                    val = True
+        return val
+
+    def hasDetected(self):
+            img_data = self.camera.getImage()
+            img = np.array(np.frombuffer(img_data, np.uint8).reshape((self.camera.getHeight(), self.camera.getWidth(), 4)))
+            return self.checkSigns(img_data, img, self.camera, self.sign_keywords)  # Pass the correct keywords
 
     def run(self):
         while self.robot.step(self.timestep) != -1:

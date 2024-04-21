@@ -9,7 +9,7 @@ import time
 from controller import Robot
 
 robot = Robot()
-timestep = int(robot.getBasicTimeStep())
+timestep = 64
 
 
 compass = robot.getDevice('compass')
@@ -102,7 +102,7 @@ def main():
  initGPS = gps.getValues()
  map = Map(robot,timestep,initGPS)
  move = Move(robot,timestep, map.lasers)
- #detect = Detection(robot, timestep,move)
+ detect = Detection(robot, timestep,move, map)
  explore = Explore()
 
  
@@ -114,7 +114,7 @@ def main():
 
  move.startMapping(map)
  while robot.step(timestep)!=-2:
-    move.tremaux(map)
+    move.tremaux(map,detect)
     #detect.run()
     if False:
 

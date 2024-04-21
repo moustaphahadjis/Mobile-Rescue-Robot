@@ -44,8 +44,8 @@ class Map:
             self.display.setColor(0xffffff)
             self.display.drawPixel(i,j)
 
-    def detectVictimLoc(self, currentPos, orientation):
-            
+    def detectVictimLoc(self, orientation):
+            currentPos = self.curr
             angle = math.radians(270 + orientation +90)
             dist = self.lasers[3].getValue()
 
@@ -64,6 +64,7 @@ class Map:
             x = dist* math.cos(angle) 
             #print(f'[{x, y}]')
             self.setWall(x*self.displayRes*self.scale + currentPos[0], -y*self.displayRes*self.scale + currentPos[1] )
+    
     def mapping(self,orientation, gps):
        currentPos = self.drawTrack(gps)
        self.detectWall(currentPos,orientation)
