@@ -80,6 +80,7 @@ class Detection:
         midFrame = False
         for contour in contours:
             if cv2.contourArea(contour) > 5000 and cv2.contourArea(contour) < 20000 :
+                x, y, w, h = cv2.boundingRect(contour)
                 #print(cv2.contourArea(contour))
                 x, y, w, h = cv2.boundingRect(contour)
                 roi = img[y:y+h, x:x+w]
@@ -87,20 +88,7 @@ class Detection:
                 center_x = x + w / 2
                 thr= w*0.2
                 #print(h)
-                res = self.check(center_x)
-                t1 = time.time()
-                while self.robot.step(self.timestep)!=-1:
-                    t2 = time.time()
-                    if t2-t1>5:
-                        break
-                    if res == 1:
-                        self.move.stop()
-                        midFrame = True
-                        break
-                    elif res == 2:
-                        self.move.slow_left()
-                    elif res == 3:
-                        self.move.slow_right()
+                
 
 
                 #print(self.laser4.getValue())
@@ -109,6 +97,20 @@ class Detection:
                     for detected_text in detected_texts:
                         for keyword_list in keywords.values():
                             if detected_text in keyword_list:
+                                res = self.check(center_x)
+                                t1 = time.time()
+                                while self.robot.step(self.timestep)!=-1:
+                                    t2 = time.time()
+                                    if t2-t1>5:
+                                        break
+                                    if res == 1:
+                                        self.move.stop()
+                                        midFrame = True
+                                        break
+                                    elif res == 2:
+                                        self.move.slow_left(self.map)
+                                    elif res == 3:
+                                        self.move.slow_right(self.map)
                                 detected_signs.append(detected_text)
                                 print(self.map.detectVictimLoc(self.move.getOrientation()))
 
@@ -125,12 +127,12 @@ class Detection:
         hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
 
         # Define the HSV range for brown (commonly indicative of mud or dirt)
-        brown_lower = np.array([36, 57.7, 58.4])  # Lower bound of brown color in HSV
-        brown_upper = np.array([45, 49.7, 61.6])  # Upper bound of brown color in HSV
+        brown_lower = np.array([10, 100, 20])  # Lower bound of brown color in HSV
+        brown_upper = np.array([20,255,200])  # Upper bound of brown color in HSV
 
         # Define the HSV range for black (potentially hazardous areas or holes)
         black_lower = np.array([0, 0, 0])  # Lower bound of black color in HSV
-        black_upper = np.array([180, 255, 30])  # Upper bound of black color in HSV
+        black_upper = np.array([10, 10, 10])  # Upper bound of black color in HSV
 
         # Create masks based on these color ranges
         brown_mask = cv2.inRange(hsv, brown_lower, brown_upper)
@@ -148,6 +150,8 @@ class Detection:
         elif cv2.countNonZero(black_mask) > (img.shape[0] * img.shape[1] * 0.1):
             floor_value = 2
             print("Black floor detected - avoiding hole")
+        else:
+            floor_value = 0
 
         return floor_value
 
@@ -175,6 +179,7 @@ class Detection:
             return self.checkSigns(img_data, img, self.camera, self.sign_keywords)  # Pass the correct keywords
 
     def run(self):
+        
         while self.robot.step(self.timestep) != -1:
             # Process images from the camera for sign detection
             img_data = self.camera.getImage()

@@ -26,6 +26,9 @@ class Move:
     def forward(self):
         self.leftMotor.setVelocity(self.max_speed)
         self.rightMotor.setVelocity(self.max_speed)
+    def slow_forward(self):
+        self.leftMotor.setVelocity(self.max_speed/5)
+        self.rightMotor.setVelocity(self.max_speed/5)
 
 
     def backward(self):
@@ -34,20 +37,22 @@ class Move:
 
 
     def left(self):
-        self.leftMotor.setVelocity(-self.max_speed/2)
-        self.rightMotor.setVelocity(self.max_speed/2)
+        self.leftMotor.setVelocity(-self.max_speed/4)
+        self.rightMotor.setVelocity(self.max_speed/4)
 
     def right(self):
-        self.leftMotor.setVelocity(self.max_speed/2)
-        self.rightMotor.setVelocity(-self.max_speed/2)
+        self.leftMotor.setVelocity(self.max_speed/4)
+        self.rightMotor.setVelocity(-self.max_speed/4)
     
-    def slow_left(self):
+    def slow_left(self, map):
         self.leftMotor.setVelocity(-self.max_speed/5)
         self.rightMotor.setVelocity(self.max_speed/5)
+        self.startMapping(map)
 
-    def slow_right(self):
+    def slow_right(self, map):
         self.leftMotor.setVelocity(self.max_speed/5)
         self.rightMotor.setVelocity(-self.max_speed/5)
+        self.startMapping(map)
     
     def stop(self):
         self.leftMotor.setVelocity(0)
@@ -143,21 +148,21 @@ class Move:
             return False
         
     def isRight(self):
-       thr = 0.08
-       if self.lasers[0].getValue()>thr or self.lasers[1].getValue()>thr or self.lasers[2].getValue()>thr :
-            print('right free')
+       thr = 0.2
+       if self.lasers[0].getValue()>thr :
+            #print('right free')
             return True
        else:
-            print('Obstacle Right')
+            #print('Obstacle Right')
             return False
        
     def isLeft(self):
-       thr = 0.08
-       if   self.lasers[5].getValue()>thr or self.lasers[6].getValue()>thr or self.lasers[7].getValue()>thr:
-            print('left free')
+       thr = 0.2
+       if   self.lasers[7].getValue()>thr :
+            #print('left free')
             return True
        else:
-            print('Obstacle Left')
+            #print('Obstacle Left')
             return False
        
     def goLeft(self):
@@ -228,7 +233,7 @@ class Move:
         print(rr)
         return rr
     
-    def rotate(self, angle,map):
+    def rotate(self, angle,map, detect):
         val = False
 
         r = angle%360
@@ -240,6 +245,7 @@ class Move:
         
         while self.robot.step(self.timestep)!=-1:
             self.startMapping(map)
+            #detect.run()
             cur = self.getOrientation()
             #print(f'curr={cur}')
             #map.mapping(cur, self.gps.getValues())
@@ -250,10 +256,10 @@ class Move:
                 break
             else:
                 if dif < 180:
-                    self.slow_left()
+                    self.left()
                     val = False
                 else :
-                    self.slow_right()
+                    self.right()
                     val = False
         return val
     
@@ -352,8 +358,9 @@ class Move:
     def tremaux(self, map,detect):
         visited = dict()
         canDetect = True
-        
+        lastDec = ''
         while self.robot.step(self.timestep) != -1:
+            """
             t1 = time.time()
             if canDetect:
                 if detect.hasDetected():
@@ -362,8 +369,10 @@ class Move:
                         canDetect = False
                     self.stop()
                     detect.run()
-                    print('Victim detected')
+               """
+            signs,floor = detect.run()     
 
+                    
             self.startMapping(map)
             position = map.curr
             if position not in visited:
@@ -371,11 +380,50 @@ class Move:
             visited[position] += 10
             
             if visited[position] > 10 :
-                if self.isFrontFree():
-                    # Move forward if front is clear and the path is less visited
-                    self.forward()
-                    #self.robot.step(32)
-                    canDetect = True
+                #print(floor)
+                poss = []
+                if self.isFrontFree() and floor!=2:
+                    poss.append('f')
+                    if self.isRight():
+                        poss.append('r')
+                    if self.isLeft():
+                        poss.append('l')
+
+                    if lastDec!='f' and lastDec in poss:
+                        poss.remove(lastDec)    
+                    dec = ['f']
+                    if len(poss)==1:
+                        dec = poss
+                    elif len(poss)==2:
+                        dec = random.choices(poss, weights=(80,20))
+                    
+                    elif len(poss)==2:
+                        dec = random.choices(poss, weights=(80,10,10))
+
+                    
+                    
+                    if dec[0] == 'f':
+                        
+                        if floor == 1:
+                            self.slow_forward()
+                        else:
+                            self.forward()
+                                        
+                    else:     
+                        angle = 0   
+                        if dec[0] == 'l' :
+                            angle = self.getOrientation()+90
+                        elif dec[0] =='r':
+                            angle = self.getOrientation()-90
+                        if angle > 360:
+                            angle = angle-360
+                        if angle < 0:
+                            angle = 360 + angle
+                            
+                        if self.rotate(angle,map, detect):
+                            self.forward
+                    
+                    
                 else:
                     # Turn randomly
                     rand = random.Random(2)
@@ -393,8 +441,16 @@ class Move:
                     if angle < 0:
                         angle = 360 + angle
                     
-                    if self.rotate(angle,map):
+                    if self.rotate(angle,map, detect):
                         self.stop()
+
+                    """
+                if self.isFrontFree() and floor!=2:
+                    if floor == 1:
+                        self.slow_forward()
+                    else:
+                        self.forward()
+                    canDetect = True """
             else:
                 # Backtrack or turn around if this path is highly visited
                 angle = self.getOrientation() - 180
@@ -403,7 +459,7 @@ class Move:
                 if angle<0:
                     angle = 360 + angle
                 
-                if self.rotate(angle,map):
+                if self.rotate(angle,map,detect):
                     self.stop()
 
 
