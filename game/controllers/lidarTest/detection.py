@@ -79,40 +79,40 @@ class Detection:
 
         midFrame = False
         for contour in contours:
-            if cv2.contourArea(contour) > 5000 and cv2.contourArea(contour) < 20000 :
+            #print(cv2.contourArea(contour))
+            if cv2.contourArea(contour) > 10000 and cv2.contourArea(contour) < 40000 :
                 x, y, w, h = cv2.boundingRect(contour)
                 #print(cv2.contourArea(contour))
-                x, y, w, h = cv2.boundingRect(contour)
+                #x, y, w, h = cv2.boundingRect(contour)
                 roi = img[y:y+h, x:x+w]
 
                 center_x = x + w / 2
                 thr= w*0.2
-                #print(h)
                 
 
 
                 #print(self.laser4.getValue())
-                if midFrame:
-                    detected_texts = self.extract_signs(roi)
-                    for detected_text in detected_texts:
-                        for keyword_list in keywords.values():
-                            if detected_text in keyword_list:
-                                res = self.check(center_x)
-                                t1 = time.time()
-                                while self.robot.step(self.timestep)!=-1:
-                                    t2 = time.time()
-                                    if t2-t1>5:
-                                        break
-                                    if res == 1:
-                                        self.move.stop()
-                                        midFrame = True
-                                        break
-                                    elif res == 2:
-                                        self.move.slow_left(self.map)
-                                    elif res == 3:
-                                        self.move.slow_right(self.map)
-                                detected_signs.append(detected_text)
-                                print(self.map.detectVictimLoc(self.move.getOrientation()))
+                detected_texts = self.extract_signs(roi)
+                for detected_text in detected_texts:
+                    for keyword_list in keywords.values():
+                        if detected_text in keyword_list:
+                            res = self.check(center_x)
+                            t1 = time.time()
+                            while self.robot.step(self.timestep)!=-1:
+                                #print('detecting')
+                                t2 = time.time()
+                                if t2-t1>5:
+                                    break
+                                if res == 1:
+                                    self.move.stop()
+                                    midFrame = True
+                                    break
+                                elif res == 2:
+                                    self.move.slow_left(self.map)
+                                elif res == 3:
+                                    self.move.slow_right(self.map)
+                            detected_signs.append(detected_text)
+                            print(self.map.detectVictimLoc(self.move.getOrientation()))
 
         return detected_signs
 
@@ -162,7 +162,7 @@ class Detection:
 
         val = False
         for contour in contours:
-            if cv2.contourArea(contour) > 5000 and cv2.contourArea(contour) < 20000 :
+            if cv2.contourArea(contour) > 0 :
                 #print(cv2.contourArea(contour))
                 x, y, w, h = cv2.boundingRect(contour)
                 roi = img[y:y+h, x:x+w]
@@ -183,7 +183,7 @@ class Detection:
         while self.robot.step(self.timestep) != -1:
             # Process images from the camera for sign detection
             img_data = self.camera.getImage()
-            img = np.array(np.frombuffer(img_data, np.uint8).reshape((self.camera.getHeight(), self.camera.getWidth(), 4)))
+            img = np.array(np.frombuffer(img_data, np.uint8).reshape(((self.camera.getHeight()), (self.camera.getWidth()), 4)))
             signs = self.detect_signs(img_data, img, self.camera, self.sign_keywords)  # Pass the correct keywords
 
             # Process the colour_camera image for floor color detection

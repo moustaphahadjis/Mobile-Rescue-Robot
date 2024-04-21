@@ -43,7 +43,15 @@ class Map:
           for j in range(self.displayRes):
             self.display.setColor(0xffffff)
             self.display.drawPixel(i,j)
+    def xyToGps(self, x,y):
+        x0 = (x - self.curr[0])/(self.scale*self.displayRes)
+        y0 = (y - self.curr[1])/(self.scale*self.displayRes)
 
+        x1 = -x0 + self.initGPS[0]
+        y1 = -y0 + self.initGPS[2]
+
+        return (y1,x1)
+    
     def detectVictimLoc(self, orientation):
             currentPos = self.curr
             angle = math.radians(270 + orientation +90)
@@ -52,7 +60,7 @@ class Map:
             y = dist* math.sin(angle) 
             x = dist* math.cos(angle) 
             #print(f'[{x, y}]')
-            return x*self.displayRes*self.scale + currentPos[0],-y*self.displayRes*self.scale + currentPos[1]
+            return self.xyToGps(x*self.displayRes*self.scale + currentPos[0],-y*self.displayRes*self.scale + currentPos[1])
             
     
     def detectWall(self, currentPos, orientation):
@@ -126,7 +134,7 @@ class Map:
         y = y0*self.displayRes*self.scale + self.pos[1]
         self.setTrack(x,y)
         return (x,y)
-       
+    
 
     
        

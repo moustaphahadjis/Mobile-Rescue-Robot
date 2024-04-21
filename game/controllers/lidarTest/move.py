@@ -245,7 +245,7 @@ class Move:
         
         while self.robot.step(self.timestep)!=-1:
             self.startMapping(map)
-            #detect.run()
+            detect.run()
             cur = self.getOrientation()
             #print(f'curr={cur}')
             #map.mapping(cur, self.gps.getValues())

@@ -9,7 +9,7 @@ import time
 from controller import Robot
 
 robot = Robot()
-timestep = 64
+timestep = int(robot.getBasicTimeStep())
 
 
 compass = robot.getDevice('compass')
