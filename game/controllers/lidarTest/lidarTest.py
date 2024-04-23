@@ -103,7 +103,7 @@ def main():
  map = Map(robot,timestep,initGPS)
  move = Move(robot,timestep, map.lasers)
  detect = Detection(robot, timestep,move, map)
- explore = Explore()
+ #explore = Explore()
 
  
  makePath  = True
@@ -112,10 +112,10 @@ def main():
  next=[]
  t1 = time.time()
 
- move.startMapping(map)
+ #move.startMapping(map)
  while robot.step(timestep)!=-2:
-    move.tremaux(map,detect)
-    #detect.run()
+    #move.tremaux(map,detect)
+    detect.run()
     if False:
 
   
