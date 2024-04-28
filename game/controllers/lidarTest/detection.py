@@ -2,6 +2,7 @@ import cv2
 import numpy as np
 #import pytesseract
 import easyocr
+import matplotlib.pyplot as plt
 import time
 
 class Detection:
@@ -27,6 +28,7 @@ class Detection:
 
         self.MIN_CONTOUR_AREA = 10
         self.MAX_CONTOUR_AREA = 100    
+        self.detected_signs = []
 
         self.sign_keywords = {
             'Flammable Gas': ['FLAMMABLE', 'GAS', '2'],
@@ -76,36 +78,41 @@ class Detection:
         return res
 
 
+
+
     def detect_signs(self, image_data, img, camera, keywords):
         thresh = self.preprocess_image(image_data, camera)
-        contours = self.detect_contours(thresh)
-        detected_signs = []
+        contours, _ = cv2.findContours(thresh, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+
+
+        # Create a figure and an axes to plot on
+        fig, ax = plt.subplots()
+        # Display the original image
+        ax.imshow(cv2.cvtColor(img, cv2.COLOR_BGR2RGB))
 
         midFrame = False
         for contour in contours:
-            #print(cv2.contourArea(contour))
-            if cv2.contourArea(contour) > 10000 and cv2.contourArea(contour) < 40000 :
+            area = cv2.contourArea(contour)
+            if 10000 < area < 40000:
                 x, y, w, h = cv2.boundingRect(contour)
-                #print(cv2.contourArea(contour))
-                #x, y, w, h = cv2.boundingRect(contour)
                 roi = img[y:y+h, x:x+w]
-
                 center_x = x + w / 2
-                thr= w*0.2
-                
+                thr = w * 0.2
 
+                # Display each ROI in a new figure to show text extraction
+                fig_roi, ax_roi = plt.subplots()
+                ax_roi.imshow(cv2.cvtColor(roi, cv2.COLOR_BGR2RGB))
+                ax_roi.set_title('Region of Interest')
 
-                #print(self.laser4.getValue())
                 detected_texts = self.extract_signs(roi)
                 for detected_text in detected_texts:
                     for keyword_list in keywords.values():
                         if detected_text in keyword_list:
                             res = self.check(center_x)
                             t1 = time.time()
-                            while self.robot.step(self.timestep)!=-1:
-                                #print('detecting')
+                            while self.robot.step(self.timestep) != -1:
                                 t2 = time.time()
-                                if t2-t1>5:
+                                if t2 - t1 > 5:
                                     break
                                 if res == 1:
                                     self.move.stop()
@@ -141,8 +148,21 @@ class Detection:
                                             self.haz_count = self.haz_count - 1
                                     except:
                                         print('')
+                            self.detected_signs.append(detected_text)
+                            print(self.map.detectVictimLoc(self.move.getOrientation()))
 
-        return detected_signs
+                # Plot the bounding rectangle on the main image
+                rect = plt.Rectangle((x, y), w, h, edgecolor='red', facecolor='none')
+                ax.add_patch(rect)
+                # Show the ROI plot
+                plt.show()
+
+        # Show the main plot with the detected bounding boxes
+        plt.show()
+
+        return self.detected_signs
+
+
 
 
     def detect_floor_color(self, image_data, camera):
@@ -158,26 +178,25 @@ class Detection:
         brown_lower = np.array([10, 100, 20])  # Lower bound of brown color in HSV
         brown_upper = np.array([20,255,200])  # Upper bound of brown color in HSV
 
-        # Define the HSV range for black (potentially hazardous areas or holes)
-        black_lower = np.array([0, 0, 0])  # Lower bound of black color in HSV
-        black_upper = np.array([10, 10, 10])  # Upper bound of black color in HSV
+        
+        black_lower = np.array([0, 0, 0])  
+        black_upper = np.array([10, 10, 10])  
 
         # Create masks based on these color ranges
         brown_mask = cv2.inRange(hsv, brown_lower, brown_upper)
         black_mask = cv2.inRange(hsv, black_lower, black_upper)
 
-        # Apply morphological operations to reduce noise in the masks
-        kernel = np.ones((5, 5), np.uint8)  # Kernel for morphological operations
+       
+        kernel = np.ones((5, 5), np.uint8)  #  morphological operations
         brown_mask = cv2.morphologyEx(brown_mask, cv2.MORPH_CLOSE, kernel)
         black_mask = cv2.morphologyEx(black_mask, cv2.MORPH_CLOSE, kernel)
 
-        # Determine if significant portions of the floor are brown or black by comparing the non-zero values in masks
         if cv2.countNonZero(brown_mask) > (img.shape[0] * img.shape[1] * 0.1):
             floor_value = 1
-            print("Brown floor detected - reducing speed")
+            print("Swamp detected (Brown Area) - reducing speed")
         elif cv2.countNonZero(black_mask) > (img.shape[0] * img.shape[1] * 0.1):
             floor_value = 2
-            print("Black floor detected - avoiding hole")
+            print("Hole detected (Black Area) - avoiding ")
         else:
             floor_value = 0
 
