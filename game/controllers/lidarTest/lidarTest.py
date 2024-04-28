@@ -6,9 +6,9 @@ from map import Map
 from detection import Detection
 from explore import Explore
 import time
-from controller import Robot
+from controller import Supervisor
 
-robot = Robot()
+robot = Supervisor()
 timestep = int(robot.getBasicTimeStep())
 
 

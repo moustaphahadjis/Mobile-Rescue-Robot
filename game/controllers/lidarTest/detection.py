@@ -17,7 +17,10 @@ class Detection:
         self.camera.enable(timestep)
         self.colour_camera.enable(timestep)
         self.laser4.enable(timestep)
-
+        self.victims = self.robot.getFromDef('HUMANGROUP').getField('children')
+        self.hazards = self.robot.getFromDef('HAZARDGROUP').getField('children')
+        self.victims_count = self.victims.getCount()
+        self.haz_count = self.hazards.getCount()
         #pytesseract.pytesseract.tesseract_cmd = 'C:/Program Files/Tesseract-OCR/tesseract.exe'
         #self.TESSERACT_CONFIG = "--psm 6 --oem 3"
         self.reader = easyocr.Reader(['en'], gpu=True)  # Adjust 'gpu' based on your setup
@@ -34,7 +37,8 @@ class Detection:
             'Stable Victim': ['S'],
             'Unharmed Victim': ['U']
         }
-
+        print(f'{self.victims_count} Victims present on this map')
+        print(f'{self.haz_count} Hazards present on this map')
         self.move = move
 
     def preprocess_image(self, image_data, camera):
@@ -111,8 +115,32 @@ class Detection:
                                     self.move.slow_left(self.map)
                                 elif res == 3:
                                     self.move.slow_right(self.map)
+
+                            gps = self.map.detectVictimLoc(self.move.getOrientation())
+                            print(f'GPS: {gps}')
                             detected_signs.append(detected_text)
-                            print(self.map.detectVictimLoc(self.move.getOrientation()))
+                            if self.victims_count>0:
+                                for i in range(self.victims_count):
+                                    try:
+                                        loc =self.victims.getMFNode(i).getField('translation').getSFVec3f()
+                                        print(loc)
+                                        if (gps[1]< loc[0]+0.1 and gps[1]>loc[0]-0.1) or ( gps[0]< loc[2]+0.1 and gps[0]>loc[2]-0.1):
+                                            print('Victim removed')
+                                            self.victims.removeMF(i)
+                                            self.victims_count = self.victims_count-1
+                                    except:
+                                        print('')
+                            if self.haz_count>0:
+                                for i in range(self.haz_count):
+                                    try:
+                                        loc =self.hazards.getMFNode(i).getField('translation').getSFVec3f()
+                                        print(loc)
+                                        if (gps[1]< loc[0]+0.1 and gps[1]>loc[0]-0.1) or ( gps[0]< loc[2]+0.1 and gps[0]>loc[2]-0.1):
+                                            print('Hazard removed')
+                                            self.hazards.removeMF(i)
+                                            self.haz_count = self.haz_count - 1
+                                    except:
+                                        print('')
 
         return detected_signs
 

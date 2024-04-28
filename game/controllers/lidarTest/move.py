@@ -384,13 +384,12 @@ class Move:
                 poss = []
                 if self.isFrontFree() and floor!=2:
                     poss.append('f')
-                    if self.isRight():
-                        poss.append('r')
-                    if self.isLeft():
-                        poss.append('l')
-
-                    if lastDec!='f' and lastDec in poss:
-                        poss.remove(lastDec)    
+                    if(lastDec=='f'):
+                        if self.isRight():
+                            poss.append('r')
+                        if self.isLeft():
+                            poss.append('l')
+  
                     dec = ['f']
                     if len(poss)==1:
                         dec = poss

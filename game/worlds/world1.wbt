@@ -1238,6 +1238,7 @@ E-puck {
   translation -0.479745 -0.0300321 -0.481434
   rotation -0.6018742781604751 -0.5656072613994155 -0.5637692605499703 2.05717
   controller "lidarTest"
+  supervisor TRUE
   camera_fieldOfView 0.9
   camera_width 1280
   camera_height 720
