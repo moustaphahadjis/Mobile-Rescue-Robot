@@ -114,8 +114,8 @@ def main():
 
  #move.startMapping(map)
  while robot.step(timestep)!=-2:
-    #move.tremaux(map,detect)
-    detect.run()
+    move.tremaux(map,detect)
+    #detect.run()
     if False:
 
   

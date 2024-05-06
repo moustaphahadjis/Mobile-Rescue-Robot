@@ -86,9 +86,9 @@ class Detection:
 
 
         # Create a figure and an axes to plot on
-        fig, ax = plt.subplots()
+        #fig, ax = plt.subplots()
         # Display the original image
-        ax.imshow(cv2.cvtColor(img, cv2.COLOR_BGR2RGB))
+        #ax.imshow(cv2.cvtColor(img, cv2.COLOR_BGR2RGB))
 
         midFrame = False
         for contour in contours:
@@ -100,9 +100,9 @@ class Detection:
                 thr = w * 0.2
 
                 # Display each ROI in a new figure to show text extraction
-                fig_roi, ax_roi = plt.subplots()
-                ax_roi.imshow(cv2.cvtColor(roi, cv2.COLOR_BGR2RGB))
-                ax_roi.set_title('Region of Interest')
+                #fig_roi, ax_roi = plt.subplots()
+                #ax_roi.imshow(cv2.cvtColor(roi, cv2.COLOR_BGR2RGB))
+                #ax_roi.set_title('Region of Interest')
 
                 detected_texts = self.extract_signs(roi)
                 for detected_text in detected_texts:
@@ -125,7 +125,7 @@ class Detection:
 
                             gps = self.map.detectVictimLoc(self.move.getOrientation())
                             print(f'GPS: {gps}')
-                            detected_signs.append(detected_text)
+                            self.detected_signs.append(detected_text)
                             if self.victims_count>0:
                                 for i in range(self.victims_count):
                                     try:
@@ -152,13 +152,13 @@ class Detection:
                             print(self.map.detectVictimLoc(self.move.getOrientation()))
 
                 # Plot the bounding rectangle on the main image
-                rect = plt.Rectangle((x, y), w, h, edgecolor='red', facecolor='none')
-                ax.add_patch(rect)
+                #rect = plt.Rectangle((x, y), w, h, edgecolor='red', facecolor='none')
+                #ax.add_patch(rect)
                 # Show the ROI plot
-                plt.show()
+                #plt.show()
 
         # Show the main plot with the detected bounding boxes
-        plt.show()
+        #plt.show()
 
         return self.detected_signs
 
