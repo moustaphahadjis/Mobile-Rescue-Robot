@@ -4,8 +4,6 @@ from random import randrange
 import math
 import time
 import numpy as np
-from sklearn.model_selection import train_test_split
-from sklearn.neighbors import KNeighborsClassifier
 
 class Node():
 
@@ -34,16 +32,7 @@ class Explore:
                     surrounding_square.append((i, j,0))
         return surrounding_square
     
-    def knn(self,x,y, map):
-        X =  map.world[:1]
-        X = map.world.reshape(X.shape[0], -1)
-        Y = map.world[2]
-        knn = KNeighborsClassifier(n_neighbors=5)
-
-
-        knn.fit(X, Y)
-        return  knn.predict(np.array((x,y))) 
-
+    
         
     def getAvr(self):
         explored_points = self.explored
@@ -123,6 +112,8 @@ class Explore:
         end_col = np.clip(start_col + offset_col, 0, cols - 1)
 
         return (end_row, end_col)
+    
+    #A* algorithm implementation
     def pathFinder(self, maze, start, end):
         
         start_node = Node(None, start)

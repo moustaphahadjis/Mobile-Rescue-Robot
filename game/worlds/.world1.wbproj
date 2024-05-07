@@ -12,5 +12,5 @@ consoles: Console:All:All
 renderingDevicePerspectives: e-puck:camera;1;0.192323;0.676857;0
 renderingDevicePerspectives: e-puck:camera_left;1;0.214063;0.0247191;2.95483e-09
 renderingDevicePerspectives: e-puck:camera_right;1;0.214063;0;0
-renderingDevicePerspectives: e-puck:colour_camera;1;1.38076;0.902943;0.0126684
-renderingDevicePerspectives: e-puck:display;1;0.794;0;0
+renderingDevicePerspectives: e-puck:colour_camera;1;1.13343;0.902943;0.0126684
+renderingDevicePerspectives: e-puck:display;1;0.605;0;0
