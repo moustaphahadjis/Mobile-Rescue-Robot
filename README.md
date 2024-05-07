@@ -35,4 +35,4 @@ Click on run to execute the code.
 Easyocr is heavy computation wise so it is preferable to use a pc equipped with **NVIDIA CUDA** to process the images.
 The full implementation of our code can be found in **/game/controllers/RRR**
 
-! [Screenshot] (./Webots screen.png)
+![Screenshot](https://github.com/moustaphahadjis/Mobile-Rescue-Robot/blob/main/Webots%20screen.png)
