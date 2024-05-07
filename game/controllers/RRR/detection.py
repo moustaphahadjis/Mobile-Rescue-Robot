@@ -132,7 +132,7 @@ class Detection:
                                     try:
                                         loc =self.victims.getMFNode(i).getField('translation').getSFVec3f()
                                         print(loc)
-                                        if (gps[1]< loc[0]+0.1 and gps[1]>loc[0]-0.1) or ( gps[0]< loc[2]+0.1 and gps[0]>loc[2]-0.1):
+                                        if (gps[0]< loc[0]+0.1 and gps[0]>loc[0]-0.1) or ( gps[2]< loc[2]+0.1 and gps[2]>loc[2]-0.1):
                                             print('Victim removed')
                                             self.victims.removeMF(i)
                                             self.victims_count = self.victims_count-1
@@ -143,7 +143,7 @@ class Detection:
                                     try:
                                         loc =self.hazards.getMFNode(i).getField('translation').getSFVec3f()
                                         print(loc)
-                                        if (gps[1]< loc[0]+0.1 and gps[1]>loc[0]-0.1) or ( gps[0]< loc[2]+0.1 and gps[0]>loc[2]-0.1):
+                                        if (gps[0]< loc[0]+0.1 and gps[0]>loc[0]-0.1) or ( gps[2]< loc[2]+0.1 and gps[2]>loc[2]-0.1):
                                             print('Hazard removed')
                                             self.hazards.removeMF(i)
                                             self.haz_count = self.haz_count - 1
