@@ -29,3 +29,8 @@ Once the dependencies are downloaded, it is necessary to launch the the world **
 ## Run
 
 Click on run to execute the code.
+
+## Notes
+
+Easyocr is heavy computation wise so it is preferable to use a pc equipped with **NVIDIA CUDA** to process the images.
+The full implementation of our code can be found in **/game/controllers/RRR**
