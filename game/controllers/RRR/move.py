@@ -106,6 +106,7 @@ class Move:
         return True
     
     def followWall(self):
+            #wall following algorithm
             max_speed = 6.28
             rightWall = self.lasers[0].getValue()< self.distThr 
             cornerWall = self.lasers[2].getValue()< self.distThr
@@ -148,6 +149,7 @@ class Move:
             return False
         
     def isRight(self):
+       #check if right is free
        thr = 0.2
        if self.lasers[0].getValue()>thr :
             #print('right free')
@@ -157,6 +159,7 @@ class Move:
             return False
        
     def isLeft(self):
+       #check if left is free
        thr = 0.2
        if   self.lasers[7].getValue()>thr :
             #print('left free')
@@ -206,6 +209,7 @@ class Move:
 
        
     def faceDir(self, gps2):
+        #rotate to face a direction
         gps1 = self.gps.getValues()
         bearing = self.getBearing(gps1[0], gps1[1], gps2[0], gps2[1])
         orientation = self.getOrientation()
@@ -234,6 +238,7 @@ class Move:
         return rr
     
     def rotate(self, angle,map, detect):
+        #rotate to given angle
         val = False
 
         r = angle%360
@@ -356,6 +361,7 @@ class Move:
        return math.sqrt(a**2 + b**2)
     
     def tremaux(self, map,detect):
+        #tremaux algorithm
         visited = dict()
         canDetect = True
         lastDec = ''

@@ -123,7 +123,8 @@ class Detection:
                                 elif res == 3:
                                     self.move.slow_right(self.map)
 
-                            gps = self.map.detectVictimLoc(self.move.getOrientation())
+                            #gps = self.map.detectVictimLoc(self.move.getOrientation())
+                            gps = self.move.gps.getValues()
                             print(f'GPS: {gps}')
                             self.detected_signs.append(detected_text)
                             if self.victims_count>0:
